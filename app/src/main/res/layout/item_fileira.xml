@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Layout de UMA fileira da tela Principal (item do RecyclerView rvFileiras):
-     cabeçalho (título, subtítulo e "Ver tudo") + carrossel horizontal de cards. -->
+     cabeçalho (título, subtítulo e "Ver tudo") + carrossel horizontal de cards.
+     clipChildren="false" deixa o brilho do card tocado sair um pouco do carrossel. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="4dp"
+    android:clipChildren="false"
     android:orientation="vertical">
 
     <!-- ===== CABEÇALHO DA FILEIRA ===== -->
@@ -52,11 +54,13 @@
 
     <!-- ===== CARROSSEL DE CARDS =====
          RecyclerView horizontal com os jogos da fileira.
-         clipToPadding="false" permite que os cards rolem até a borda da tela. -->
+         clipToPadding="false" permite que os cards rolem até a borda da tela e
+         clipChildren="false" deixa o brilho do card tocado sair dos limites do card. -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvJogos"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:clipChildren="false"
         android:clipToPadding="false"
         android:paddingHorizontal="16dp"
         android:paddingTop="16dp"

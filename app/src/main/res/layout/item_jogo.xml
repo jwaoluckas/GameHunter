@@ -1,71 +1,105 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Layout de UM card de jogo (carrossel das fileiras e grade do Resultado de pesquisas), seguindo o "Game Card" do Figma.
      Mostra: capa, nota, nome, preço de lançamento, média de preço hoje, plataformas
-     e o botão "Comparar moedas". O card inteiro é clicável (abre os detalhes do jogo). -->
+     e o botão "Comparar moedas". O card inteiro é clicável (abre os detalhes do jogo).
+     clipChildren="false" deixa o brilho laranja e o card ampliado (animação de toque)
+     aparecerem além dos limites do próprio card. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/cardJogo"
     android:layout_width="156dp"
     android:layout_height="wrap_content"
     android:layout_marginEnd="12dp"
+    android:clipChildren="false"
     android:orientation="vertical">
 
-    <!-- ===== CAPA (200dp de altura) =====
-         FrameLayout empilha os filhos: texto reserva, imagem da capa, sombra e nota. -->
+    <!-- ===== CAPA COM DESTAQUE DE TOQUE =====
+         Contêiner da capa com o brilho laranja ATRÁS dela. O brilho começa invisível
+         (alpha 0) e é maior que a capa (margens negativas), para espalhar em volta dela.
+         As margens são individuais porque o Android ignora layout_margin negativo -->
     <FrameLayout
-        android:id="@+id/frameCapa"
         android:layout_width="match_parent"
         android:layout_height="200dp"
-        android:background="@drawable/bg_capa_jogo">
-
-        <TextView
-            android:id="@+id/txtTituloCapa"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:importantForAccessibility="no"
-            android:padding="12dp"
-            android:textColor="@color/gh_texto_primario"
-            android:textSize="16sp"
-            android:textStyle="bold" />
-
-        <ImageView
-            android:id="@+id/imgCapa"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scaleType="centerCrop" />
+        android:clipChildren="false">
 
         <View
+            android:id="@+id/viewBrilho"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@drawable/bg_degrade_capa" />
+            android:layout_marginStart="-24dp"
+            android:layout_marginTop="-24dp"
+            android:layout_marginEnd="-24dp"
+            android:layout_marginBottom="-24dp"
+            android:alpha="0"
+            android:background="@drawable/bg_brilho_card"
+            android:importantForAccessibility="no" />
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="top|start"
-            android:layout_margin="10dp"
-            android:background="@drawable/bg_nota"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:paddingHorizontal="7dp"
-            android:paddingVertical="3dp">
-
-            <ImageView
-                android:layout_width="11dp"
-                android:layout_height="11dp"
-                android:contentDescription="@null"
-                android:importantForAccessibility="no"
-                android:src="@drawable/ic_estrela" />
+        <!-- ===== CAPA (200dp de altura) =====
+             FrameLayout empilha os filhos: texto reserva, imagem da capa, sombra, nota e
+             a borda laranja do toque (também começa invisível). -->
+        <FrameLayout
+            android:id="@+id/frameCapa"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/bg_capa_jogo">
 
             <TextView
-                android:id="@+id/txtNota"
+                android:id="@+id/txtTituloCapa"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:importantForAccessibility="no"
+                android:padding="12dp"
+                android:textColor="@color/gh_texto_primario"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <ImageView
+                android:id="@+id/imgCapa"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_degrade_capa" />
+
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="3dp"
-                android:textColor="@color/gh_texto_primario"
-                android:textSize="10sp"
-                android:textStyle="bold" />
-        </LinearLayout>
+                android:layout_gravity="top|start"
+                android:layout_margin="10dp"
+                android:background="@drawable/bg_nota"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="7dp"
+                android:paddingVertical="3dp">
+
+                <ImageView
+                    android:layout_width="11dp"
+                    android:layout_height="11dp"
+                    android:contentDescription="@null"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_estrela" />
+
+                <TextView
+                    android:id="@+id/txtNota"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="3dp"
+                    android:textColor="@color/gh_texto_primario"
+                    android:textSize="10sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <View
+                android:id="@+id/viewBordaDestaque"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:alpha="0"
+                android:background="@drawable/bg_borda_destaque_capa"
+                android:importantForAccessibility="no" />
+        </FrameLayout>
     </FrameLayout>
 
     <!-- ===== INFORMAÇÕES: nome, preços, plataformas e botão Comparar moedas ===== -->

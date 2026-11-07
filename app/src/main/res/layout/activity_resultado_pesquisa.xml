@@ -136,6 +136,7 @@
             android:id="@+id/rvResultados"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:clipChildren="false"
             android:clipToPadding="false"
             android:paddingStart="16dp"
             android:paddingTop="16dp"
