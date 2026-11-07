@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Ícone de câmera (área de adicionar foto do cadastro).
+     Vector Drawable: imagem desenhada por coordenadas (não perde qualidade ao aumentar).
+     Convertido do SVG exportado do Figma do projeto. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="30.24dp"
+    android:height="30.24dp"
+    android:viewportWidth="30.24"
+    android:viewportHeight="30.24">
+
+    <path
+        android:pathData="M3.78 10.08C3.78 9.41165 4.0455 8.77068 4.51809 8.29809C4.99068 7.8255 5.63165 7.56 6.3 7.56H8.82L11.34 5.04H18.9L21.42 7.56H23.94C24.6083 7.56 25.2493 7.8255 25.7219 8.29809C26.1945 8.77068 26.46 9.41165 26.46 10.08V22.68C26.46 23.3483 26.1945 23.9893 25.7219 24.4619C25.2493 24.9345 24.6083 25.2 23.94 25.2H6.3C5.63165 25.2 4.99068 24.9345 4.51809 24.4619C4.0455 23.9893 3.78 23.3483 3.78 22.68V10.08Z"
+        android:strokeWidth="2.52"
+        android:strokeColor="@color/gh_laranja"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+
+    <path
+        android:pathData="M20.16 16.38C20.16 19.1635 17.9035 21.42 15.12 21.42C12.3365 21.42 10.08 19.1635 10.08 16.38C10.08 13.5965 12.3365 11.34 15.12 11.34C17.9035 11.34 20.16 13.5965 20.16 16.38Z"
+        android:strokeWidth="2.52"
+        android:strokeColor="@color/gh_laranja"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+</vector>

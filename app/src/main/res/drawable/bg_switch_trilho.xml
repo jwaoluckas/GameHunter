@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Trilho do switch das Configurações (46x26dp): laranja quando ligado e cinza
+     quando desligado. O estado "checked" é o switch ligado -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:state_checked="true">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/gh_laranja" />
+            <corners android:radius="13dp" />
+            <size
+                android:width="46dp"
+                android:height="26dp" />
+        </shape>
+    </item>
+
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/gh_borda" />
+            <corners android:radius="13dp" />
+            <size
+                android:width="46dp"
+                android:height="26dp" />
+        </shape>
+    </item>
+</selector>

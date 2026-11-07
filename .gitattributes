@@ -1,0 +1,7 @@
+# Fim de linha padronizado: o gradlew precisa de LF para rodar no Mac/Linux
+* text=auto
+gradlew text eol=lf
+*.bat text eol=crlf
+*.jar binary
+*.png binary
+*.ttf binary

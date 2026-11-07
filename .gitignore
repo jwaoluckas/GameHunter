@@ -1,0 +1,50 @@
+# Arquivos que NÃO devem ir para o repositório: são gerados automaticamente,
+# dependem da máquina de cada pessoa ou guardam dados sensíveis.
+
+# Configuração local do Android Studio: caminho do SDK na sua máquina
+local.properties
+
+# Pastas de build e cache do Gradle/Kotlin (recriadas a cada compilação)
+.gradle/
+.kotlin/
+build/
+/captures
+.externalNativeBuild
+.cxx
+
+# Configurações pessoais do Android Studio / IntelliJ
+.idea/
+*.iml
+.navigation/
+
+# APKs, bundles e arquivos de teste gerados
+*.apk
+*.aab
+*.ap_
+*.dex
+*.class
+output.json
+output-metadata.json
+
+# Chaves de assinatura do app (NUNCA subir)
+*.jks
+*.keystore
+keystore.properties
+
+# Chaves de APIs e configurações de serviços (cada membro guarda a sua cópia local).
+# Ex.: chave da RAWG/IGDB, arquivo do Firebase
+secrets.properties
+apikeys.properties
+google-services.json
+.env
+.env.*
+
+# Logs e arquivos temporários
+*.log
+*.hprof
+*.tmp
+
+# Arquivos do sistema operacional
+.DS_Store
+Thumbs.db
+Desktop.ini

@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Layout de UM card de jogo (carrossel das fileiras e grade do Resultado de pesquisas), seguindo o "Game Card" do Figma.
+     Mostra: capa, nota, nome, preço de lançamento, média de preço hoje, plataformas
+     e o botão "Comparar moedas". O card inteiro é clicável (abre os detalhes do jogo). -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/cardJogo"
+    android:layout_width="156dp"
+    android:layout_height="wrap_content"
+    android:layout_marginEnd="12dp"
+    android:orientation="vertical">
+
+    <!-- ===== CAPA (200dp de altura) =====
+         FrameLayout empilha os filhos: texto reserva, imagem da capa, sombra e nota. -->
+    <FrameLayout
+        android:id="@+id/frameCapa"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:background="@drawable/bg_capa_jogo">
+
+        <TextView
+            android:id="@+id/txtTituloCapa"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:importantForAccessibility="no"
+            android:padding="12dp"
+            android:textColor="@color/gh_texto_primario"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/imgCapa"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/bg_degrade_capa" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|start"
+            android:layout_margin="10dp"
+            android:background="@drawable/bg_nota"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="7dp"
+            android:paddingVertical="3dp">
+
+            <ImageView
+                android:layout_width="11dp"
+                android:layout_height="11dp"
+                android:contentDescription="@null"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_estrela" />
+
+            <TextView
+                android:id="@+id/txtNota"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="3dp"
+                android:textColor="@color/gh_texto_primario"
+                android:textSize="10sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </FrameLayout>
+
+    <!-- ===== INFORMAÇÕES: nome, preços, plataformas e botão Comparar moedas ===== -->
+    <TextView
+        android:id="@+id/txtTitulo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textColor="@color/gh_texto_primario"
+        android:textSize="14sp"
+        android:textStyle="bold" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:fontFamily="@font/exo2_medium"
+            android:text="@string/card_lancamento"
+            android:textColor="@color/gh_texto_apagado"
+            android:textSize="10sp" />
+
+        <TextView
+            android:id="@+id/txtPrecoLancamento"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/gh_texto_secundario"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:fontFamily="@font/exo2_medium"
+            android:text="@string/card_media_hoje"
+            android:textColor="@color/gh_texto_apagado"
+            android:textSize="10sp" />
+
+        <TextView
+            android:id="@+id/txtPrecoMedio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/exo2_extrabold"
+            android:textColor="@color/gh_laranja"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/txtPlataforma1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_tag_plataforma"
+            android:paddingHorizontal="6dp"
+            android:paddingVertical="3dp"
+            android:textColor="@color/gh_texto_secundario"
+            android:textSize="10sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/txtPlataforma2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:background="@drawable/bg_tag_plataforma"
+            android:paddingHorizontal="6dp"
+            android:paddingVertical="3dp"
+            android:textColor="@color/gh_texto_secundario"
+            android:textSize="10sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/txtPlataforma3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:background="@drawable/bg_tag_plataforma"
+            android:paddingHorizontal="6dp"
+            android:paddingVertical="3dp"
+            android:textColor="@color/gh_texto_secundario"
+            android:textSize="10sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/btnCompararMoedas"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:layout_marginTop="6dp"
+        android:background="@drawable/bg_botao_comparar"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="13dp"
+            android:layout_height="13dp"
+            android:contentDescription="@null"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_comparar_moedas" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:text="@string/card_comparar_moedas"
+            android:textColor="@color/gh_laranja"
+            android:textSize="10sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+</LinearLayout>

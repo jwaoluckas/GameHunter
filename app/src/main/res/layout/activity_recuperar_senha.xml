@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Layout da tela de RECUPERAR SENHA (usado pela RecuperarSenhaActivity),
+     seguindo o frame "Recuperar senha" do Figma.
+     A raiz é um LinearLayout vertical: barra superior (fixa) + conteúdo (que rola).
+     fitsSystemWindows="true": evita que o conteúdo fique por baixo da barra de status. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/gh_fundo"
+    android:fitsSystemWindows="true"
+    android:orientation="vertical">
+
+    <!-- ===== BARRA SUPERIOR: botão voltar + título + ícone da logo ===== -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="16dp">
+
+        <ImageView
+            android:id="@+id/btnVoltar"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/bg_botao_voltar"
+            android:contentDescription="@string/desc_voltar"
+            android:scaleType="center"
+            android:src="@drawable/ic_voltar" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_weight="1"
+            android:text="@string/recuperar_titulo"
+            android:textColor="@color/gh_texto_primario"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginStart="12dp"
+            android:contentDescription="@string/desc_logo"
+            android:scaleType="fitCenter"
+            android:src="@drawable/logo_gamehunter_icone" />
+    </LinearLayout>
+
+    <!-- ===== CONTEÚDO (rolável) =====
+         Ocupa a altura que sobra abaixo da barra (height 0dp + weight 1).
+         fillViewport="true" permite centralizar o conteúdo na vertical. -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="vertical"
+            android:paddingHorizontal="24dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="48dp">
+
+            <ImageView
+                android:layout_width="200dp"
+                android:layout_height="102dp"
+                android:layout_gravity="center_horizontal"
+                android:contentDescription="@string/desc_logo"
+                android:scaleType="fitCenter"
+                android:src="@drawable/logo_gamehunter_completa" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:gravity="center"
+                android:text="@string/recuperar_pergunta"
+                android:textColor="@color/gh_texto_primario"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:gravity="center"
+                android:text="@string/recuperar_subtitulo"
+                android:textColor="@color/gh_texto_secundario"
+                android:textSize="14sp" />
+
+            <!-- ===== Campo E-MAIL CADASTRADO ===== -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="@string/rotulo_email_cadastrado"
+                android:textColor="@color/gh_texto_secundario"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="6dp"
+                android:addStatesFromChildren="true"
+                android:background="@drawable/bg_campo_texto"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="14dp">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:contentDescription="@null"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_email" />
+
+                <EditText
+                    android:id="@+id/edtEmail"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="10dp"
+                    android:layout_weight="1"
+                    android:autofillHints="emailAddress"
+                    android:background="@null"
+                    android:hint="@string/hint_email"
+                    android:inputType="textEmailAddress"
+                    android:textColor="@color/gh_texto_primario"
+                    android:textColorHint="@color/gh_texto_apagado"
+                    android:textSize="14sp" />
+            </LinearLayout>
+
+            <!-- ===== BOTÃO ENVIAR E LINK "VOLTAR AO LOGIN" ===== -->
+            <Button
+                android:id="@+id/btnEnviar"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/bg_botao_primario"
+                android:text="@string/recuperar_botao_enviar"
+                android:textAllCaps="false"
+                android:textColor="@color/gh_texto_primario"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:id="@+id/linkVoltarLogin"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="12dp"
+                android:orientation="horizontal"
+                android:padding="8dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/recuperar_lembrou_senha"
+                    android:textColor="@color/gh_texto_secundario"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:text="@string/recuperar_voltar_login"
+                    android:textColor="@color/gh_laranja"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

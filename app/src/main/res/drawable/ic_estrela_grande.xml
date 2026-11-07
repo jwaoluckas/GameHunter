@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Estrela laranja de 16dp (caixa de avaliação do modal do jogo).
+     Vector Drawable convertido do SVG exportado do Figma do projeto -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="16dp"
+    android:height="16dp"
+    android:viewportWidth="16"
+    android:viewportHeight="16">
+
+    <path
+        android:fillColor="@color/gh_laranja"
+        android:pathData="M8 1.66667L9.93333 5.73333L14.3333 6.33333L11.1333 9.4L11.9333 13.8L8 11.7333L4.06667 13.8L4.86667 9.4L1.66667 6.33333L6.06667 5.73333L8 1.66667Z"
+        android:strokeWidth="1.33333"
+        android:strokeColor="@color/gh_laranja"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+</vector>

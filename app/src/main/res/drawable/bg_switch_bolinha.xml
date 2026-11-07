@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Bolinha branca do switch. A borda transparente de 3dp cria o espaço entre a
+     bolinha (20dp) e a borda do trilho (26dp de altura) -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+    <solid android:color="@color/gh_texto_primario" />
+    <stroke
+        android:width="3dp"
+        android:color="@android:color/transparent" />
+    <size
+        android:width="26dp"
+        android:height="26dp" />
+</shape>

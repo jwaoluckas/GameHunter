@@ -1,0 +1,329 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Layout do MODAL DO JOGO (detalhes), exibido em um AlertDialog preso na parte de
+     baixo da tela. Mostra capa, nome, avaliação, plataformas, resumo, preços, preço em
+     outras moedas e a lista de lojas. O ScrollView permite rolar quando o conteúdo
+     não cabe na tela -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_folha_inferior">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- ===== CAPA (150dp) =====
+             FrameLayout empilha: imagem da capa, escurecimento, título (por cima do
+             escurecimento para continuar legível), alça e botão fechar -->
+        <FrameLayout
+            android:id="@+id/frameCapa"
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:background="@drawable/bg_capa_detalhe">
+
+            <ImageView
+                android:id="@+id/imgCapa"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_sobreposicao_capa" />
+
+            <TextView
+                android:id="@+id/txtTituloCapa"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:fontFamily="@font/exo2_extrabold"
+                android:gravity="center"
+                android:importantForAccessibility="no"
+                android:padding="16dp"
+                android:textAllCaps="true"
+                android:textColor="@color/gh_texto_primario"
+                android:textSize="24sp" />
+
+            <View
+                android:layout_width="40dp"
+                android:layout_height="4dp"
+                android:layout_gravity="top|center_horizontal"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_alca_capa" />
+
+            <ImageView
+                android:id="@+id/btnFechar"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_gravity="top|end"
+                android:layout_margin="12dp"
+                android:background="@drawable/bg_botao_fechar_capa"
+                android:contentDescription="@string/desc_fechar"
+                android:scaleType="center"
+                android:src="@drawable/ic_fechar" />
+        </FrameLayout>
+
+        <!-- ===== DETALHES ===== -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="16dp"
+            android:paddingTop="16dp"
+            android:paddingBottom="20dp">
+
+            <!-- Nome e linha "gênero · desenvolvedora · ano" -->
+            <TextView
+                android:id="@+id/txtNome"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/gh_texto_primario"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/txtInformacoes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textColor="@color/gh_texto_apagado"
+                android:textSize="12sp" />
+
+            <!-- Avaliação (estrela + nota + "/10") e etiquetas de plataforma.
+                 O Flow coloca os itens lado a lado e quebra a linha quando não cabem -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp">
+
+                <LinearLayout
+                    android:id="@+id/caixaAvaliacao"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_avaliacao"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="6dp">
+
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:contentDescription="@null"
+                        android:importantForAccessibility="no"
+                        android:src="@drawable/ic_estrela_grande" />
+
+                    <TextView
+                        android:id="@+id/txtNota"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:fontFamily="@font/exo2_extrabold"
+                        android:textColor="@color/gh_texto_primario"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:importantForAccessibility="no"
+                        android:text="@string/detalhe_nota_maxima"
+                        android:textColor="@color/gh_texto_apagado"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <androidx.constraintlayout.helper.widget.Flow
+                    android:id="@+id/flowPlataformas"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    app:constraint_referenced_ids="caixaAvaliacao"
+                    app:flow_horizontalBias="0"
+                    app:flow_horizontalGap="6dp"
+                    app:flow_horizontalStyle="packed"
+                    app:flow_verticalAlign="center"
+                    app:flow_verticalGap="6dp"
+                    app:flow_wrapMode="chain"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <!-- Resumo -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:fontFamily="@font/exo2_semibold"
+                android:text="@string/detalhe_resumo"
+                android:textColor="@color/gh_texto_primario"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/txtResumo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:lineSpacingExtra="2dp"
+                android:textColor="@color/gh_texto_secundario"
+                android:textSize="12sp" />
+
+            <!-- Preço de lançamento e média de hoje (com o selo de desconto),
+                 em duas caixas de mesma largura (layout_weight) -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:baselineAligned="false"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_caixa"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="10dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/exo2_medium"
+                        android:text="@string/detalhe_preco_lancamento"
+                        android:textColor="@color/gh_texto_apagado"
+                        android:textSize="10sp" />
+
+                    <TextView
+                        android:id="@+id/txtPrecoLancamento"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:fontFamily="@font/exo2_extrabold"
+                        android:textColor="@color/gh_texto_secundario"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="10dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_caixa"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="10dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/exo2_medium"
+                        android:text="@string/detalhe_media_hoje"
+                        android:textColor="@color/gh_texto_apagado"
+                        android:textSize="10sp" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/txtPrecoMedio"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/exo2_extrabold"
+                            android:textColor="@color/gh_laranja"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/txtDesconto"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="6dp"
+                            android:background="@drawable/bg_selo_desconto"
+                            android:paddingHorizontal="6dp"
+                            android:paddingVertical="2dp"
+                            android:textColor="@color/gh_texto_primario"
+                            android:textSize="10sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Comparar moedas: título + "Escolher moedas" e a grade com o preço em
+                 cada moeda escolhida. A margem negativa compensa o espaço de 4dp que
+                 cada caixa tem em volta, alinhando a grade com o resto do conteúdo -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/exo2_semibold"
+                    android:text="@string/card_comparar_moedas"
+                    android:textColor="@color/gh_texto_primario"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/btnEscolherMoedas"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="4dp"
+                    android:text="@string/detalhe_escolher_moedas"
+                    android:textColor="@color/gh_laranja"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvPrecosMoedas"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="-4dp"
+                android:layout_marginTop="6dp"
+                android:nestedScrollingEnabled="false" />
+
+            <!-- Onde comprar: título + "Ver mais lojas" e a lista de lojas -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/exo2_semibold"
+                    android:text="@string/detalhe_onde_comprar"
+                    android:textColor="@color/gh_texto_primario"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/btnVerMaisLojas"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="4dp"
+                    android:text="@string/detalhe_ver_mais_lojas"
+                    android:textColor="@color/gh_laranja"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvOfertas"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:nestedScrollingEnabled="false" />
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

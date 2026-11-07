@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Ícone de setas trocando (botão "Comparar moedas" do card).
+     Vector Drawable: imagem desenhada por coordenadas (não perde qualidade ao aumentar).
+     Convertido do SVG exportado do Figma do projeto. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="13dp"
+    android:height="13dp"
+    android:viewportWidth="13"
+    android:viewportHeight="13">
+
+    <path
+        android:pathData="M3.79167 6.5L1.625 4.33333L3.79167 2.16667M1.625 4.33333H9.20833M9.20833 6.5L11.375 8.66667L9.20833 10.8333M11.375 8.66667H3.79167"
+        android:strokeWidth="1.08333"
+        android:strokeColor="@color/gh_laranja"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+</vector>

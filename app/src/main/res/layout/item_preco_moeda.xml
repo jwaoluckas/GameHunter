@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Layout de UMA caixa de preço por moeda no modal do jogo (ex.: "EUA / US$ 69,99").
+     As caixas ficam em uma grade de 3 colunas; a margem de 4dp em volta cria o
+     espaço entre elas -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="4dp"
+    android:background="@drawable/bg_caixa_borda"
+    android:orientation="vertical"
+    android:paddingHorizontal="10dp"
+    android:paddingVertical="8dp">
+
+    <TextView
+        android:id="@+id/txtRegiao"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/exo2_medium"
+        android:textColor="@color/gh_texto_apagado"
+        android:textSize="10sp" />
+
+    <TextView
+        android:id="@+id/txtValor"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:ellipsize="end"
+        android:fontFamily="@font/exo2_extrabold"
+        android:maxLines="1"
+        android:textColor="@color/gh_texto_primario"
+        android:textSize="14sp" />
+</LinearLayout>

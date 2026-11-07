@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Layout de UMA etiqueta de plataforma do modal do jogo (PS5, PC...).
+     As etiquetas são criadas no código, uma para cada plataforma do jogo -->
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_tag_detalhe"
+    android:fontFamily="@font/exo2_semibold"
+    android:paddingHorizontal="10dp"
+    android:paddingVertical="4dp"
+    android:textColor="@color/gh_texto_secundario"
+    android:textSize="12sp" />

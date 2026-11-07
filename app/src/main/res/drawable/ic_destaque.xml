@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Ícone de gráfico subindo (caixa de destaque do modal "Comparar moedas").
+     Vector Drawable convertido do SVG exportado do Figma do projeto -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="20dp"
+    android:height="20dp"
+    android:viewportWidth="20"
+    android:viewportHeight="20">
+
+    <path
+        android:pathData="M2.5 14.1667L7.5 9.16667L10.8333 12.5L17.5 5.83333"
+        android:strokeWidth="1.66667"
+        android:strokeColor="@color/gh_laranja"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+
+    <path
+        android:pathData="M12.5 5.83333H17.5V10.8333"
+        android:strokeWidth="1.66667"
+        android:strokeColor="@color/gh_laranja"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+</vector>

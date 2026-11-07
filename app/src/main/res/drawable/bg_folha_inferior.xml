@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Fundo dos modais que sobem da parte de baixo da tela (filtros, detalhes do jogo
+     e comparar moedas): só os cantos de cima são arredondados -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="@color/gh_cartao" />
+    <corners
+        android:topLeftRadius="24dp"
+        android:topRightRadius="24dp" />
+</shape>

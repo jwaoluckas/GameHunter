@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Ícone X branco (botão fechar dos modais).
+     Vector Drawable convertido do SVG exportado do Figma do projeto -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="18dp"
+    android:height="18dp"
+    android:viewportWidth="18"
+    android:viewportHeight="18">
+
+    <path
+        android:pathData="M4.5 4.5L9 9M9 9L13.5 13.5M9 9L13.5 4.5M9 9L4.5 13.5"
+        android:strokeWidth="1.5"
+        android:strokeColor="@color/gh_texto_primario"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+</vector>

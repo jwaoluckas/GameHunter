@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Layout do InicioFragment: conteúdo rolável da tela Principal
+     (campo de busca, chips de plataforma e fileiras de jogos).
+     NestedScrollView: versão do ScrollView que funciona bem com RecyclerViews dentro dela. -->
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingBottom="24dp">
+
+        <!-- ===== BUSCA ===== -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="12dp"
+            android:addStatesFromChildren="true"
+            android:background="@drawable/bg_campo_busca"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="14dp"
+            android:paddingEnd="7dp">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:contentDescription="@null"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_busca" />
+
+            <EditText
+                android:id="@+id/edtBusca"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginStart="10dp"
+                android:layout_weight="1"
+                android:background="@null"
+                android:hint="@string/hint_busca"
+                android:imeOptions="actionSearch"
+                android:importantForAutofill="no"
+                android:inputType="text"
+                android:textColor="@color/gh_texto_primario"
+                android:textColorHint="@color/gh_texto_apagado"
+                android:textSize="14sp" />
+
+            <ImageView
+                android:id="@+id/btnFiltros"
+                android:layout_width="34dp"
+                android:layout_height="34dp"
+                android:background="@drawable/bg_botao_filtros"
+                android:contentDescription="@string/desc_filtros"
+                android:scaleType="center"
+                android:src="@drawable/ic_filtros" />
+        </LinearLayout>
+
+        <!-- ===== CHIPS DE PLATAFORMA (Todos, PC, PS5...) =====
+             RecyclerView horizontal. clipToPadding="false" deixa os chips
+             rolarem por baixo do espaçamento lateral, em vez de serem cortados nele. -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvPlataformas"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clipToPadding="false"
+            android:paddingHorizontal="16dp"
+            android:paddingBottom="16dp" />
+
+        <TextView
+            android:id="@+id/txtNenhumJogo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:padding="32dp"
+            android:text="@string/principal_nenhum_jogo"
+            android:textColor="@color/gh_texto_secundario"
+            android:textSize="14sp"
+            android:visibility="gone" />
+
+        <!-- ===== FILEIRAS DE JOGOS =====
+             RecyclerView vertical: cada item é uma fileira com seu próprio carrossel horizontal.
+             nestedScrollingEnabled="false": quem rola a tela é o NestedScrollView. -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvFileiras"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:nestedScrollingEnabled="false" />
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

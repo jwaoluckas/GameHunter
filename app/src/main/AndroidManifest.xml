@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- A partir do Android 11, o app precisa declarar quais tipos de Intent implícita
+         ele vai consultar. Isto permite que resolveActivity() encontre um navegador
+         para abrir os links das lojas (endereços https) -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.BROWSABLE" />
+            <data android:scheme="https" />
+        </intent>
+    </queries>
+
+    <application
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.GameHunter">
+
+        <!-- Tela de Login. É a única com exported="true" e com o intent-filter MAIN/LAUNCHER,
+             ou seja, é a tela aberta quando o usuário toca no ícone do app.
+             adjustResize: a tela "encolhe" quando o teclado aparece, permitindo rolar até os campos. -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Tela de Cadastro. exported="false": só pode ser aberta pelo próprio app -->
+        <activity
+            android:name=".CadastroActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <!-- Tela de Recuperar senha. exported="false": só pode ser aberta pelo próprio app -->
+        <activity
+            android:name=".RecuperarSenhaActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <!-- Tela Principal (aberta após o login). Hospeda o InicioFragment.
+             adjustPan: ao abrir o teclado na busca, a tela é "empurrada" em vez de encolher. -->
+        <activity
+            android:name=".PrincipalActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustPan" />
+
+        <!-- Tela de Resultado de pesquisas (busca e "Ver tudo"). adjustResize: a grade
+             encolhe quando o teclado aparece -->
+        <activity
+            android:name=".ResultadoPesquisaActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <!-- Tela de Configurações (aberta pelo menu de perfil) -->
+        <activity
+            android:name=".ConfiguracoesActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+    </application>
+
+</manifest>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Fundo do botão "Comparar moedas" do card: só a borda laranja.
+     Quando pressionado, o meio ganha um laranja bem transparente. -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:state_pressed="true">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/gh_laranja_transparente" />
+            <stroke
+                android:width="1dp"
+                android:color="@color/gh_laranja" />
+            <corners android:radius="8dp" />
+        </shape>
+    </item>
+
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@android:color/transparent" />
+            <stroke
+                android:width="1dp"
+                android:color="@color/gh_laranja" />
+            <corners android:radius="8dp" />
+        </shape>
+    </item>
+</selector>

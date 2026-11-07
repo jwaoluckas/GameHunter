@@ -1,0 +1,174 @@
+<!-- Todos os textos visíveis ao usuário ficam aqui, e não "fixos" no código.
+     Os textos seguem o Figma do projeto. -->
+<resources>
+    <string name="app_name">GameHunter</string>
+
+    <!-- Descrições para acessibilidade (lidas pelo leitor de tela, requisito RF14) -->
+    <string name="desc_logo">Logo do GameHunter</string>
+    <string name="desc_voltar">Voltar</string>
+    <string name="desc_fechar">Fechar</string>
+    <string name="mostrar_senha">Mostrar senha</string>
+    <string name="ocultar_senha">Ocultar senha</string>
+    <string name="desc_adicionar_foto">Adicionar foto de perfil</string>
+    <string name="desc_alterar_foto">Alterar foto de perfil</string>
+
+    <!-- Rótulos e dicas (hints) dos campos -->
+    <string name="rotulo_email">E-mail</string>
+    <string name="hint_email">voce@email.com</string>
+    <string name="rotulo_senha">Senha</string>
+    <string name="hint_senha">••••••••</string>
+    <string name="rotulo_nome">Nome</string>
+    <string name="hint_nome">Seu nome completo</string>
+    <string name="hint_senha_nova">Mínimo 8 caracteres</string>
+    <string name="rotulo_confirmar_senha">Confirmar senha</string>
+    <string name="hint_confirmar_senha">Digite a senha novamente</string>
+    <string name="rotulo_data_nascimento">Data de nascimento</string>
+    <string name="hint_data_nascimento">DD/MM/AAAA</string>
+    <!-- Formato da data escolhida no calendário: dia/mês/ano com zeros à esquerda (ex.: 05/03/2004) -->
+    <string name="formato_data">%1$02d/%2$02d/%3$04d</string>
+
+    <!-- Mensagens de erro de validação -->
+    <string name="erro_campo_obrigatorio">Campo obrigatório</string>
+    <string name="erro_email_invalido">Digite um e-mail válido</string>
+    <string name="erro_senha_curta">A senha deve ter pelo menos 8 caracteres</string>
+    <string name="erro_senhas_diferentes">As senhas não coincidem</string>
+
+    <!-- Botões dos diálogos -->
+    <string name="sim">Sim</string>
+    <string name="nao">Não</string>
+    <string name="ok">OK</string>
+
+    <!-- Tela de Login -->
+    <string name="login_subtitulo">Compare preços, ache promoções e jogue mais gastando menos.</string>
+    <string name="login_esqueci_senha">Esqueci minha senha</string>
+    <string name="login_botao_entrar">Entrar</string>
+    <string name="login_botao_cadastrar">Cadastrar</string>
+    <string name="login_sucesso">Login validado! Bem-vindo(a), %1$s</string>
+    <string name="sair_titulo">Sair do aplicativo</string>
+    <string name="sair_mensagem">Deseja realmente sair do GameHunter?</string>
+
+    <!-- Tela de Cadastro -->
+    <string name="cadastro_titulo">Criar conta</string>
+    <string name="cadastro_adicionar_foto">Adicionar foto (opcional)</string>
+    <string name="cadastro_botao_criar_conta">Criar conta</string>
+    <string name="cadastro_ja_tem_conta">Já tem conta?</string>
+    <string name="cadastro_entrar">Entrar</string>
+    <string name="cadastro_sucesso">Conta criada com sucesso!</string>
+
+    <!-- Tela de Recuperar senha -->
+    <string name="recuperar_titulo">Recuperar senha</string>
+    <string name="recuperar_pergunta">Esqueceu sua senha?</string>
+    <string name="recuperar_subtitulo">Informe o e-mail da sua conta e enviaremos um link para você criar uma nova senha.</string>
+    <string name="rotulo_email_cadastrado">E-mail cadastrado</string>
+    <string name="recuperar_botao_enviar">Enviar link de recuperação</string>
+    <string name="recuperar_lembrou_senha">Lembrou a senha?</string>
+    <string name="recuperar_voltar_login">Voltar ao login</string>
+    <string name="recuperar_dialogo_titulo">Verifique seu e-mail</string>
+    <string name="recuperar_dialogo_mensagem">Se o e-mail %1$s estiver cadastrado, você receberá um link para redefinir sua senha.</string>
+
+    <!-- Tela Principal -->
+    <string name="desc_perfil">Abrir menu do perfil</string>
+    <string name="desc_filtros">Filtros e ordenação</string>
+    <string name="hint_busca">Buscar jogos (ex: Elden Ring)</string>
+    <string name="principal_todos">Todos</string>
+    <string name="principal_ver_tudo">Ver tudo</string>
+    <string name="principal_nenhum_jogo">Nenhum jogo encontrado com esses filtros.</string>
+    <string name="erro_busca_vazia">Digite o nome de um jogo</string>
+
+    <!-- Card do jogo -->
+    <string name="card_lancamento">Lançamento</string>
+    <string name="card_media_hoje">Média hoje</string>
+    <string name="card_comparar_moedas">Comparar moedas</string>
+    <!-- Formato de preço em reais (ex.: R$ 249,90). O valor é formatado no código -->
+    <string name="formato_preco">R$ %1$s</string>
+    <!-- Formato de valor em qualquer moeda: símbolo + valor (ex.: US$ 69,99) -->
+    <string name="formato_moeda">%1$s %2$s</string>
+    <!-- Etiqueta com a quantidade de plataformas que não couberam no card (ex.: +3) -->
+    <string name="card_mais_plataformas">+%1$d</string>
+    <!-- Descrições do card lidas pelo leitor de tela (acessibilidade) -->
+    <string name="desc_card_jogo">%1$s, nota %2$s, média hoje %3$s</string>
+    <string name="desc_capa_jogo">Capa do jogo %1$s</string>
+
+    <!-- Menu de perfil -->
+    <string name="menu_configuracoes">Configurações</string>
+    <string name="menu_sair">Sair</string>
+    <!-- Nome exibido enquanto o usuário ainda não informou o nome -->
+    <string name="usuario_padrao">Jogador</string>
+
+    <!-- Tela de Resultado de pesquisas -->
+    <string name="desc_limpar_busca">Limpar busca</string>
+    <string name="resultado_todas">Todas</string>
+    <string name="resultado_em_promocao">Em promoção</string>
+    <!-- Contagem de resultados. O %2$s / %1$s recebe "para “texto”" ou "em “fileira”" -->
+    <string name="resultado_contagem">%1$d resultados %2$s</string>
+    <string name="resultado_contagem_um">1 resultado %1$s</string>
+    <string name="resultado_para">para “%1$s”</string>
+    <string name="resultado_em">em “%1$s”</string>
+    <string name="resultado_ordenar">Ordenar: %1$s</string>
+    <string name="resultado_nenhum">Nenhum jogo encontrado. Tente outro nome ou ajuste os filtros.</string>
+
+    <!-- Modal de filtros -->
+    <string name="filtros_titulo">Filtros</string>
+    <string name="filtros_subtitulo">Refine e ordene os resultados</string>
+    <string name="filtros_ordenar_por">Ordenar por</string>
+    <string name="filtros_plataformas">Plataformas</string>
+    <string name="filtros_lojas">Lojas</string>
+    <string name="filtros_preco_maximo">Preço máximo</string>
+    <string name="filtros_ate_preco">Até R$ %1$d</string>
+    <string name="filtros_qualquer_valor">Qualquer valor</string>
+    <string name="filtros_mostrar">Mostrar</string>
+    <string name="filtros_somente_promocao">Somente em promoção</string>
+    <string name="filtros_limpar">Limpar</string>
+    <string name="filtros_aplicar">Aplicar filtros</string>
+    <string name="ordenar_relevancia">Relevância</string>
+    <string name="ordenar_menor_preco">Menor preço</string>
+    <string name="ordenar_maior_desconto">Maior desconto</string>
+    <string name="ordenar_melhor_avaliacao">Melhor avaliação</string>
+
+    <!-- Modal de detalhes do jogo -->
+    <!-- Linha abaixo do nome: gênero · desenvolvedora · ano (ex.: RPG de ação · FromSoftware · 2022) -->
+    <string name="detalhe_informacoes">%1$s · %2$s · %3$d</string>
+    <string name="detalhe_nota_maxima">/10</string>
+    <string name="desc_nota_detalhe">Nota %1$s de 10</string>
+    <string name="detalhe_resumo">Resumo</string>
+    <string name="detalhe_preco_lancamento">Preço de lançamento</string>
+    <string name="detalhe_media_hoje">Média de preço hoje</string>
+    <!-- Selo de desconto (ex.: -28%). O "%%" escreve o símbolo de porcentagem -->
+    <string name="detalhe_desconto">-%1$d%%</string>
+    <string name="detalhe_escolher_moedas">Escolher moedas</string>
+    <string name="detalhe_onde_comprar">Onde comprar</string>
+    <string name="detalhe_ver_mais_lojas">Ver mais lojas</string>
+    <string name="detalhe_ver_menos_lojas">Ver menos lojas</string>
+    <string name="oferta_ir">Ir</string>
+    <string name="oferta_menor_preco">Menor preço · %1$s</string>
+    <string name="desc_ir_loja">Abrir a oferta na loja %1$s</string>
+    <string name="erro_abrir_link">Nenhum navegador encontrado para abrir a loja.</string>
+
+    <!-- Modal de comparar moedas -->
+    <string name="moedas_subtitulo">Escolha em quais moedas ver o preço</string>
+    <!-- Texto à direita do jogo: "Média hoje" e o valor na linha de baixo -->
+    <string name="moedas_media_hoje">Média hoje\n%1$s</string>
+    <string name="moedas_selecionadas">Moedas selecionadas</string>
+    <string name="moedas_preco_tabela">Preço de tabela</string>
+    <string name="moedas_moeda_local">Moeda local</string>
+    <!-- Valor convertido para a moeda padrão (ex.: ≈ R$ 384,94) -->
+    <string name="moedas_aproximado">≈ %1$s</string>
+    <string name="moedas_destaque_menos">No Brasil você paga cerca de %1$s a menos que nos EUA, já convertido.</string>
+    <string name="moedas_destaque_mais">No Brasil você paga cerca de %1$s a mais que nos EUA, já convertido.</string>
+    <string name="moedas_aviso_cotacao">Cotações de exemplo. No app, virão da API de câmbio.</string>
+    <string name="moedas_aplicar">Aplicar moedas</string>
+
+    <!-- Tela de Configurações -->
+    <string name="config_alterar_foto">Alterar foto</string>
+    <string name="config_informacoes_pessoais">Informações pessoais</string>
+    <string name="config_alterar_senha">Alterar senha</string>
+    <string name="rotulo_nova_senha">Nova senha</string>
+    <string name="rotulo_confirmar_nova_senha">Confirmar nova senha</string>
+    <string name="config_preferencias">Preferências</string>
+    <string name="config_moeda_padrao">Moeda padrão para comparação</string>
+    <!-- Chip da moeda padrão: código – nome (ex.: BRL – Real) -->
+    <string name="config_formato_moeda">%1$s – %2$s</string>
+    <string name="config_alertas_promocao">Receber alertas de promoção</string>
+    <string name="config_salvar">Salvar alterações</string>
+    <string name="config_salvo">Alterações salvas!</string>
+</resources>

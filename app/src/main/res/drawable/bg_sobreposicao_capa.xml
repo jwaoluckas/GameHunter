@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Escurecimento sobre a capa do modal do jogo: quase transparente em cima (10%)
+     e bem escuro embaixo (85%), deixando o título legível -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <gradient
+        android:angle="270"
+        android:endColor="#D9000000"
+        android:startColor="#1A000000" />
+    <corners
+        android:topLeftRadius="24dp"
+        android:topRightRadius="24dp" />
+</shape>

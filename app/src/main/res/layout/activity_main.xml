@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Layout da tela de LOGIN (usado pela MainActivity), seguindo o frame "Login" do Figma.
+     ScrollView: permite rolar a tela quando o teclado aparece e cobre parte do conteúdo.
+     fillViewport="true": faz o conteúdo ocupar a tela inteira, permitindo centralizá-lo.
+     fitsSystemWindows="true": evita que o conteúdo fique por baixo da barra de status (Edge-to-Edge). -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/gh_fundo"
+    android:fillViewport="true"
+    android:fitsSystemWindows="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <ImageView
+            android:layout_width="260dp"
+            android:layout_height="132dp"
+            android:layout_gravity="center_horizontal"
+            android:contentDescription="@string/desc_logo"
+            android:scaleType="fitCenter"
+            android:src="@drawable/logo_gamehunter_completa" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:gravity="center"
+            android:text="@string/login_subtitulo"
+            android:textColor="@color/gh_texto_secundario"
+            android:textSize="14sp" />
+
+        <!-- ===== Campo de E-MAIL ===== -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="28dp"
+            android:text="@string/rotulo_email"
+            android:textColor="@color/gh_texto_secundario"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="6dp"
+            android:addStatesFromChildren="true"
+            android:background="@drawable/bg_campo_texto"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="14dp">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:contentDescription="@null"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_email" />
+
+            <EditText
+                android:id="@+id/edtEmail"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginStart="10dp"
+                android:layout_weight="1"
+                android:autofillHints="emailAddress"
+                android:background="@null"
+                android:hint="@string/hint_email"
+                android:inputType="textEmailAddress"
+                android:textColor="@color/gh_texto_primario"
+                android:textColorHint="@color/gh_texto_apagado"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+        <!-- ===== Campo de SENHA ===== -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:text="@string/rotulo_senha"
+            android:textColor="@color/gh_texto_secundario"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="6dp"
+            android:addStatesFromChildren="true"
+            android:background="@drawable/bg_campo_texto"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="14dp"
+            android:paddingEnd="6dp">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:contentDescription="@null"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_cadeado" />
+
+            <EditText
+                android:id="@+id/edtSenha"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginStart="10dp"
+                android:layout_weight="1"
+                android:autofillHints="password"
+                android:background="@null"
+                android:hint="@string/hint_senha"
+                android:inputType="textPassword"
+                android:textColor="@color/gh_texto_primario"
+                android:textColorHint="@color/gh_texto_apagado"
+                android:textSize="14sp" />
+
+            <ImageView
+                android:id="@+id/imgMostrarSenha"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/mostrar_senha"
+                android:padding="8dp"
+                android:src="@drawable/ic_olho" />
+        </LinearLayout>
+
+        <!-- ===== LINK "ESQUECI MINHA SENHA" E BOTÕES ENTRAR / CADASTRAR ===== -->
+        <TextView
+            android:id="@+id/txtEsqueciSenha"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginTop="8dp"
+            android:fontFamily="@font/exo2_medium"
+            android:paddingVertical="6dp"
+            android:text="@string/login_esqueci_senha"
+            android:textColor="@color/gh_laranja"
+            android:textSize="14sp" />
+
+        <Button
+            android:id="@+id/btnEntrar"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginTop="28dp"
+            android:background="@drawable/bg_botao_primario"
+            android:text="@string/login_botao_entrar"
+            android:textAllCaps="false"
+            android:textColor="@color/gh_texto_primario"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/btnCadastrar"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_botao_secundario"
+            android:text="@string/login_botao_cadastrar"
+            android:textAllCaps="false"
+            android:textColor="@color/gh_laranja"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+</ScrollView>

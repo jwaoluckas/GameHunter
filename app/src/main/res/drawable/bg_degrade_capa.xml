@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Sombra escura na parte de baixo da capa (igual ao Figma): transparente até 45% da altura
+     e preto com 78% de opacidade no final. Deixa a capa mais "dramática" e legível. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <gradient
+        android:angle="270"
+        android:centerColor="#00000000"
+        android:centerY="0.45"
+        android:endColor="#C7000000"
+        android:startColor="#00000000" />
+    <corners android:radius="12dp" />
+</shape>

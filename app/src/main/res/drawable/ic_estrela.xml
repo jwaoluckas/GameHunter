@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Ícone de estrela laranja (nota do jogo no card).
+     Vector Drawable: imagem desenhada por coordenadas (não perde qualidade ao aumentar).
+     Convertido do SVG exportado do Figma do projeto. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="11dp"
+    android:height="11dp"
+    android:viewportWidth="11"
+    android:viewportHeight="11">
+
+    <path
+        android:fillColor="@color/gh_laranja"
+        android:pathData="M5.5 1.14583L6.82917 3.94167L9.85417 4.35417L7.65417 6.4625L8.20417 9.4875L5.5 8.06667L2.79583 9.4875L3.34583 6.4625L1.14583 4.35417L4.17083 3.94167L5.5 1.14583Z"
+        android:strokeWidth="0.916667"
+        android:strokeColor="@color/gh_laranja"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+</vector>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Cor do texto dos chips: preta sobre o laranja (selecionado) e cinza-clara
+     sobre o fundo escuro (não selecionado) -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:color="@color/gh_fundo" android:state_selected="true" />
+    <item android:color="@color/gh_texto_secundario" />
+</selector>

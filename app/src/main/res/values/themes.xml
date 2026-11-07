@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Tema do app. Herda de Theme.AppCompat porque usamos AppCompatActivity, e o
+         NoActionBar oculta a ActionBar. Define as cores da marca, o fundo preto e a
+         fonte Exo 2 do Figma para todos os textos.
+         Só o android:fontFamily é definido aqui: assim, uma View que escolhe outro
+         peso da fonte (ex.: @font/exo2_semibold) não é sobrescrita pelo tema -->
+    <style name="Theme.GameHunter" parent="Theme.AppCompat.NoActionBar">
+        <item name="colorPrimary">@color/gh_vermelho</item>
+        <item name="colorPrimaryDark">@color/gh_vermelho_escuro</item>
+        <item name="colorAccent">@color/gh_laranja</item>
+        <item name="android:windowBackground">@color/gh_fundo</item>
+        <item name="android:fontFamily">@font/exo2</item>
+    </style>
+</resources>

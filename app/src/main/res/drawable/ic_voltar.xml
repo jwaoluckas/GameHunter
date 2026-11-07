@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Ícone de seta para a esquerda (botão de voltar).
+     Vector Drawable: imagem desenhada por coordenadas (não perde qualidade ao aumentar).
+     Convertido do SVG exportado do Figma do projeto. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="22dp"
+    android:height="22dp"
+    android:viewportWidth="22"
+    android:viewportHeight="22">
+
+    <path
+        android:pathData="M13.75 16.5L8.25 11L13.75 5.5"
+        android:strokeWidth="1.83333"
+        android:strokeColor="@color/gh_texto_primario"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+</vector>

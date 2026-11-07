@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Layout da tela PRINCIPAL (usado pela PrincipalActivity), seguindo o frame "Principal" do Figma.
+     A Activity tem só o header fixo no topo. O conteúdo (busca, filtros e fileiras de jogos)
+     fica em um FRAGMENT (InicioFragment), exibido dentro do FragmentContainerView.
+     fitsSystemWindows="true": evita que o conteúdo fique por baixo das barras do sistema. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/gh_fundo"
+    android:fitsSystemWindows="true"
+    android:orientation="vertical">
+
+    <!-- ===== HEADER: logo à esquerda e botão de perfil à direita ===== -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="16dp">
+
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:contentDescription="@string/desc_logo"
+            android:scaleType="fitCenter"
+            android:src="@drawable/logo_gamehunter_icone" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <ImageView
+            android:id="@+id/btnPerfil"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/bg_botao_perfil"
+            android:contentDescription="@string/desc_perfil"
+            android:scaleType="center"
+            android:src="@drawable/ic_perfil" />
+    </LinearLayout>
+
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/containerFragment"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+</LinearLayout>

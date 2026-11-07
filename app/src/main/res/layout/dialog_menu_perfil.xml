@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Layout do MENU DE PERFIL (frame "Modal de perfil" do Figma).
+     É exibido dentro de um AlertDialog, no canto superior direito da tela,
+     quando o usuário toca no botão de perfil do header. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="232dp"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_menu_perfil"
+    android:orientation="vertical"
+    android:padding="8dp">
+
+    <!-- ===== DADOS DO USUÁRIO: avatar + nome + e-mail ===== -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="8dp">
+
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/bg_botao_perfil"
+            android:contentDescription="@null"
+            android:importantForAccessibility="no"
+            android:scaleType="center"
+            android:src="@drawable/ic_perfil" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/txtNomeUsuario"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textColor="@color/gh_texto_primario"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/txtEmailUsuario"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:fontFamily="@font/exo2_medium"
+                android:maxLines="1"
+                android:textColor="@color/gh_texto_apagado"
+                android:textSize="10sp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginVertical="4dp"
+        android:background="@color/gh_borda" />
+
+    <!-- ===== ITENS DO MENU (ficam cinza enquanto pressionados) ===== -->
+    <LinearLayout
+        android:id="@+id/itemConfiguracoes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_item_menu"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="8dp"
+        android:paddingVertical="12dp">
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:contentDescription="@null"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_configuracoes" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:fontFamily="@font/exo2_medium"
+            android:text="@string/menu_configuracoes"
+            android:textColor="@color/gh_texto_primario"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/itemSair"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:background="@drawable/bg_item_menu"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="8dp"
+        android:paddingVertical="12dp">
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:contentDescription="@null"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_sair" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:fontFamily="@font/exo2_medium"
+            android:text="@string/menu_sair"
+            android:textColor="@color/gh_texto_primario"
+            android:textSize="14sp" />
+    </LinearLayout>
+</LinearLayout>

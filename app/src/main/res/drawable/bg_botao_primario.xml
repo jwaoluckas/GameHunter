@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Fundo dos botões principais (vermelhos), como "Entrar" e "Criar conta".
+     O <selector> troca a cor quando o botão está sendo pressionado. -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:state_pressed="true">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/gh_vermelho_escuro" />
+            <corners android:radius="16dp" />
+        </shape>
+    </item>
+
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/gh_vermelho" />
+            <corners android:radius="16dp" />
+        </shape>
+    </item>
+</selector>

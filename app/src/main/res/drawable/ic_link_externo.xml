@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Ícone de link externo (botão "Ir" das lojas).
+     Vector Drawable convertido do SVG exportado do Figma do projeto -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="12dp"
+    android:height="12dp"
+    android:viewportWidth="12"
+    android:viewportHeight="12">
+
+    <path
+        android:pathData="M10 5V2H7M10 2L5.5 6.5M9 7V9.5C9 9.63261 8.94732 9.75979 8.85355 9.85355C8.75979 9.94732 8.63261 10 8.5 10H2.5C2.36739 10 2.24021 9.94732 2.14645 9.85355C2.05268 9.75979 2 9.63261 2 9.5V3.5C2 3.36739 2.05268 3.24021 2.14645 3.14645C2.24021 3.05268 2.36739 3 2.5 3H5"
+        android:strokeWidth="1"
+        android:strokeColor="@color/gh_texto_primario"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+</vector>

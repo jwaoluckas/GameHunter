@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Cores do app, retiradas das variáveis do Figma do GameHunter -->
+<resources>
+    <!-- Marca: vermelho (botões principais), vermelho escuro (botão pressionado)
+         e laranja (links, botão secundário e destaques) -->
+    <color name="gh_vermelho">#FFE30000</color>
+    <color name="gh_vermelho_escuro">#FFC91B04</color>
+    <color name="gh_laranja">#FFFC8B1A</color>
+
+    <!-- Neutras: fundo das telas, superfícies (campos, menus, etiquetas, modais), bordas e textos.
+         gh_laranja_transparente é o laranja com 15% de opacidade ("26" no início),
+         usado no fundo dos botões com borda laranja enquanto pressionados -->
+    <color name="gh_fundo">#FF000000</color>
+    <color name="gh_cartao">#FF121214</color>
+    <color name="gh_superficie">#FF1A1A1D</color>
+    <color name="gh_superficie_elevada">#FF232326</color>
+    <color name="gh_borda">#FF34343A</color>
+    <color name="gh_texto_primario">#FFFFFFFF</color>
+    <color name="gh_texto_secundario">#FFB8B8C0</color>
+    <color name="gh_texto_apagado">#FF8A8A93</color>
+    <color name="gh_laranja_transparente">#26FC8B1A</color>
+
+    <!-- Preto com 55% de opacidade: fundo do botão fechar sobre a capa do jogo -->
+    <color name="gh_preto_transparente">#8C000000</color>
+
+    <!-- Cores padrão do template -->
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+</resources>

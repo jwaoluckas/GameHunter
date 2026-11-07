@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Fundo do botão secundário ("Cadastrar"): só a borda laranja, com o meio transparente.
+     O <selector> troca a aparência quando o botão está sendo pressionado. -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:state_pressed="true">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/gh_laranja_transparente" />
+            <stroke
+                android:width="1.5dp"
+                android:color="@color/gh_laranja" />
+            <corners android:radius="16dp" />
+        </shape>
+    </item>
+
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@android:color/transparent" />
+            <stroke
+                android:width="1.5dp"
+                android:color="@color/gh_laranja" />
+            <corners android:radius="16dp" />
+        </shape>
+    </item>
+</selector>

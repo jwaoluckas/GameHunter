@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Layout de UMA loja da lista "Onde comprar" (modal do jogo): selo com a inicial
+     da loja, nome e plataforma, preço e o botão "Ir", que abre a oferta no navegador.
+     O espaço entre as linhas vem do marginBottom -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="60dp"
+    android:layout_marginBottom="8dp"
+    android:background="@drawable/bg_linha_lista"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingHorizontal="12dp"
+    android:paddingVertical="10dp">
+
+    <TextView
+        android:id="@+id/txtInicialLoja"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:background="@drawable/bg_selo_loja"
+        android:gravity="center"
+        android:importantForAccessibility="no"
+        android:textColor="@color/gh_texto_primario"
+        android:textSize="14sp"
+        android:textStyle="bold" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/txtNomeLoja"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="@color/gh_texto_primario"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/txtDetalheLoja"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:fontFamily="@font/exo2_medium"
+            android:textColor="@color/gh_texto_apagado"
+            android:textSize="10sp" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/txtPrecoOferta"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:fontFamily="@font/exo2_extrabold"
+        android:textColor="@color/gh_laranja"
+        android:textSize="14sp" />
+
+    <LinearLayout
+        android:id="@+id/btnIr"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:background="@drawable/bg_botao_ir"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="10dp"
+        android:paddingVertical="7dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/oferta_ir"
+            android:textColor="@color/gh_texto_primario"
+            android:textSize="10sp"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:layout_width="12dp"
+            android:layout_height="12dp"
+            android:layout_marginStart="4dp"
+            android:contentDescription="@null"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_link_externo" />
+    </LinearLayout>
+</LinearLayout>
