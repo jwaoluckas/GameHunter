@@ -155,7 +155,7 @@
     <string name="moedas_aproximado">≈ %1$s</string>
     <string name="moedas_destaque_menos">No Brasil você paga cerca de %1$s a menos que nos EUA, já convertido.</string>
     <string name="moedas_destaque_mais">No Brasil você paga cerca de %1$s a mais que nos EUA, já convertido.</string>
-    <string name="moedas_aviso_cotacao">Cotações de exemplo. No app, virão da API de câmbio.</string>
+    <string name="moedas_aviso_cotacao">Preços por país na moeda indicada. Sem conversão cambial. Disponibilidade e compra dependem da região.</string>
     <string name="moedas_aplicar">Aplicar moedas</string>
 
     <!-- Tela de Configurações -->
@@ -171,4 +171,34 @@
     <string name="config_alertas_promocao">Receber alertas de promoção</string>
     <string name="config_salvar">Salvar alterações</string>
     <string name="config_salvo">Alterações salvas!</string>
+    <string name="itad_ofertas">Mais vendidos</string>
+    <string name="itad_descontos">Maiores descontos desta seleção</string>
+    <string name="itad_fonte">Os queridinhos da comunidade</string>
+    <string name="itad_indisponivel">—</string>
+    <string name="itad_sem_sinopse">Sinopse não disponível. Dados fornecidos pela IsThereAnyDeal.</string>
+    <string name="itad_sem_cambio">Comparação internacional indisponível nesta integração.</string>
+    <string name="itad_carregando">Carregando jogos…</string>
+    <string name="itad_sem_resultados">Nenhum jogo encontrado com esses filtros.</string>
+    <string name="itad_sem_chave">A conexão com o catálogo ainda não foi configurada.</string>
+    <string name="itad_chave_invalida">Não foi possível autorizar o acesso ao catálogo.</string>
+    <string name="itad_limite">Limite de consultas atingido. Tente novamente em alguns minutos.</string>
+    <string name="itad_erro_rede">Não foi possível conectar. Verifique a internet e tente novamente.</string>
+    <string name="itad_erro">Não foi possível carregar o catálogo. Tente novamente.</string>
+    <string name="filtros_generos">Gêneros</string>
+    <string name="genero_acao">Ação</string>
+    <string name="genero_aventura">Aventura</string>
+    <string name="genero_rpg">RPG</string>
+    <string name="genero_estrategia">Estratégia</string>
+    <string name="genero_simulacao">Simulação</string>
+    <string name="genero_corrida">Corrida</string>
+    <string name="genero_esportes">Esportes</string>
+    <string name="genero_terror">Terror</string>
+    <string name="moedas_carregando">Carregando…</string>
+    <string name="moedas_consultando">Consultando preços por país…</string>
+    <string name="moedas_sem_oferta">Sem ofertas</string>
+    <string name="moedas_sem_oferta_moeda">Nesta moeda</string>
+    <string name="moedas_erro_preco">Indisponível</string>
+    <string name="moedas_tentar_novamente">Toque para tentar</string>
+    <string name="moedas_sem_conversao">Sem conversão</string>
+    <string name="moedas_destaque_regional">Média das ofertas em cada país, na moeda indicada. Valores em moedas diferentes não são comparáveis sem conversão cambial.</string>
 </resources>

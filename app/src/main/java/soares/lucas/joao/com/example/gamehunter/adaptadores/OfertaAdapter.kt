@@ -39,16 +39,16 @@ class OfertaAdapter(
         with(holder.binding) {
             val contexto = root.context
 
-            txtInicialLoja.text = oferta.loja.nome.first().toString()
-            txtNomeLoja.text = oferta.loja.nome
+            txtInicialLoja.text = oferta.nomeLoja.take(1)
+            txtNomeLoja.text = oferta.nomeLoja
             txtDetalheLoja.text = if (position == 0) {
-                contexto.getString(R.string.oferta_menor_preco, oferta.loja.plataforma)
+                contexto.getString(R.string.oferta_menor_preco, oferta.plataforma)
             } else {
-                oferta.loja.plataforma
+                oferta.plataforma
             }
             txtPrecoOferta.text = contexto.getString(R.string.formato_preco, formatarPreco(oferta.preco))
 
-            btnIr.contentDescription = contexto.getString(R.string.desc_ir_loja, oferta.loja.nome)
+            btnIr.contentDescription = contexto.getString(R.string.desc_ir_loja, oferta.nomeLoja)
             btnIr.setOnClickListener { aoClicarEmIr(oferta) }
         }
     }

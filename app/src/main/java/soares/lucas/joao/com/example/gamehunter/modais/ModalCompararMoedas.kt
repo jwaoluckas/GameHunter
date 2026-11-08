@@ -1,6 +1,7 @@
 package soares.lucas.joao.com.example.gamehunter.modais
 
 import android.content.Context
+import com.bumptech.glide.Glide
 import android.view.LayoutInflater
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -10,15 +11,17 @@ import soares.lucas.joao.com.example.gamehunter.componentes.GrupoDeChips
 import soares.lucas.joao.com.example.gamehunter.dados.PreferenciasUsuario
 import soares.lucas.joao.com.example.gamehunter.databinding.ModalCompararMoedasBinding
 import soares.lucas.joao.com.example.gamehunter.exibirComoFolhaInferior
-import soares.lucas.joao.com.example.gamehunter.formatarPreco
 import soares.lucas.joao.com.example.gamehunter.formatarValorNaMoeda
 import soares.lucas.joao.com.example.gamehunter.modelo.Jogo
 import soares.lucas.joao.com.example.gamehunter.modelo.Moeda
 import soares.lucas.joao.com.example.gamehunter.preencherEtiquetasDePlataforma
-import kotlin.math.abs
+import kotlinx.coroutines.cancel
+import soares.lucas.joao.com.example.gamehunter.componentes.CarregadorPrecosRegionais
+import soares.lucas.joao.com.example.gamehunter.dados.Repositorios
+import soares.lucas.joao.com.example.gamehunter.modelo.EstadoPrecoRegional
 
-// Modal COMPARAR MOEDAS (RF12): mostra o preço do jogo em várias moedas, convertido
-// para a moeda padrão do usuário. As moedas escolhidas ficam salvas nas preferências
+// Modal COMPARAR MOEDAS (RF12): consulta preços do mesmo jogo por país.
+// Usa a média de ofertas em cada moeda, sem conversões cambiais fictícias. As moedas escolhidas ficam salvas nas preferências
 // ao tocar em "Aplicar moedas", e a função aoAplicar avisa quem abriu o modal
 class ModalCompararMoedas(
     private val contexto: Context,
@@ -30,7 +33,20 @@ class ModalCompararMoedas(
     private val preferencias = PreferenciasUsuario(contexto)
     private val moedaPadrao = preferencias.moedaPadrao
 
-    private val moedaAdapter = MoedaAdapter(jogo, moedaPadrao, preferencias.moedasSelecionadas)
+    private val moedaAdapter: MoedaAdapter = MoedaAdapter(moedaPadrao, preferencias.moedasSelecionadas) { tentarNovamente(it) }
+    private val escopo = contexto.criarEscopoDoModal()
+    private val carregador = CarregadorPrecosRegionais(escopo, Repositorios.jogos(contexto), jogo.idItad) { estados ->
+        moedaAdapter.atualizarPrecos(estados)
+        atualizarDestaque(estados)
+        val brasil = estados[Moeda.BRL] as? EstadoPrecoRegional.Disponivel
+        if (brasil != null) binding.txtMediaHoje.text = contexto.getString(
+            R.string.moedas_media_hoje, formatarValorNaMoeda(contexto, Moeda.BRL, brasil.valor)
+        )
+    }
+
+    private fun tentarNovamente(moeda: Moeda) {
+        carregador.carregar(listOf(moeda))
+    }
 
     // Chips com todas as moedas (USD, BRL, EUR...). Ao marcar ou desmarcar, a lista
     // de preços já é atualizada, mesmo antes de aplicar. Pelo menos uma moeda
@@ -40,7 +56,10 @@ class ModalCompararMoedas(
         Moeda.entries.map { it.name },
         selecaoMultipla = true,
         minimoUmSelecionado = true,
-        aoMudar = { moedaAdapter.atualizarMoedas(moedasMarcadas()) }
+        aoMudar = {
+            moedaAdapter.atualizarMoedas(moedasMarcadas())
+            carregador.carregar(moedasMarcadas())
+        }
     )
 
     // Preenche o resumo do jogo, a lista de moedas e o destaque, cria o AlertDialog
@@ -52,12 +71,13 @@ class ModalCompararMoedas(
         binding.rvMoedas.layoutManager = LinearLayoutManager(contexto)
         binding.rvMoedas.adapter = moedaAdapter
 
-        binding.txtDestaque.text = textoDoDestaque()
+        binding.txtDestaque.setText(R.string.moedas_consultando)
 
         val dialogo = AlertDialog.Builder(contexto)
             .setView(binding.root)
             .create()
 
+        dialogo.setOnDismissListener { escopo.cancel() }
         binding.btnFechar.setOnClickListener { dialogo.dismiss() }
         binding.btnAplicar.setOnClickListener {
             preferencias.salvarMoedasSelecionadas(moedasMarcadas())
@@ -66,6 +86,7 @@ class ModalCompararMoedas(
         }
 
         exibirComoFolhaInferior(dialogo)
+        carregador.carregar(moedasMarcadas())
     }
 
     // Moedas dos chips marcados, na ordem do enum Moeda
@@ -75,6 +96,7 @@ class ModalCompararMoedas(
     // e a média de preço de hoje
     private fun preencherJogo() {
         binding.frameCapa.clipToOutline = true
+        Glide.with(binding.imgCapa).load(jogo.capaUrl).centerCrop().into(binding.imgCapa)
         binding.txtTituloJogo.text = jogo.titulo
         preencherEtiquetasDePlataforma(
             listOf(binding.txtPlataforma1, binding.txtPlataforma2, binding.txtPlataforma3),
@@ -82,20 +104,17 @@ class ModalCompararMoedas(
         )
         binding.txtMediaHoje.text = contexto.getString(
             R.string.moedas_media_hoje,
-            contexto.getString(R.string.formato_preco, formatarPreco(jogo.precoMedioHoje))
+            formatarValorNaMoeda(contexto, Moeda.BRL, jogo.precoMedioHoje)
         )
     }
 
-    // Diferença entre o preço nos EUA (convertido para reais) e a média no Brasil,
-    // mostrada na moeda padrão do usuário. O texto muda se no Brasil for mais
-    // barato ("a menos") ou mais caro ("a mais")
-    private fun textoDoDestaque(): String {
-        val precoEua = Moeda.USD.converter(Moeda.USD.precoDoJogo(jogo), Moeda.BRL)
-        val diferencaEmReais = precoEua - jogo.precoMedioHoje
-        val diferenca = Moeda.BRL.converter(abs(diferencaEmReais), moedaPadrao)
-        val valor = formatarValorNaMoeda(contexto, moedaPadrao, diferenca)
-
-        val texto = if (diferencaEmReais >= 0) R.string.moedas_destaque_menos else R.string.moedas_destaque_mais
-        return contexto.getString(texto, valor)
+    private fun atualizarDestaque(estados: Map<Moeda, EstadoPrecoRegional>) {
+        val selecionados = moedasMarcadas().mapNotNull { estados[it] }
+        val falha = selecionados.filterIsInstance<EstadoPrecoRegional.Falha>().firstOrNull()
+        binding.txtDestaque.text = when {
+            selecionados.any { it is EstadoPrecoRegional.Carregando } -> contexto.getString(R.string.moedas_consultando)
+            falha != null -> contexto.getString(falha.mensagem)
+            else -> contexto.getString(R.string.moedas_destaque_regional)
+        }
     }
 }

@@ -1,5 +1,6 @@
 package soares.lucas.joao.com.example.gamehunter.dados
 
+import soares.lucas.joao.com.example.gamehunter.modelo.Genero
 import soares.lucas.joao.com.example.gamehunter.modelo.Fileira
 import soares.lucas.joao.com.example.gamehunter.modelo.Jogo
 import soares.lucas.joao.com.example.gamehunter.modelo.Loja
@@ -183,7 +184,7 @@ object RepositorioDeJogosDeExemplo : RepositorioDeJogos {
     // - fileiras: montadas a partir dos ids dos jogos do catálogo
     // - buscarPorTitulo: jogos cujo nome contém o texto, sem diferenciar maiúsculas
     // - jogosDaFileira: os jogos da fileira com aquele título (lista vazia se não existir)
-    override suspend fun fileiras(): List<Fileira> {
+    override suspend fun fileiras(generos: Set<Genero>): List<Fileira> {
         return listOf(
             Fileira(
                 titulo = "Mais vendidos",
@@ -202,8 +203,8 @@ object RepositorioDeJogosDeExemplo : RepositorioDeJogos {
         return jogos.filter { it.titulo.contains(texto, ignoreCase = true) }
     }
 
-    override suspend fun jogosDaFileira(tituloDaFileira: String): List<Jogo> {
-        return fileiras().find { it.titulo == tituloDaFileira }?.jogos.orEmpty()
+    override suspend fun jogosDaFileira(tituloDaFileira: String, generos: Set<Genero>): List<Jogo> {
+        return fileiras(generos).find { it.titulo == tituloDaFileira }?.jogos.orEmpty()
     }
 
     // Funções auxiliares para montar os dados acima com menos repetição:

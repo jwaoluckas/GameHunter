@@ -10,6 +10,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.CancellationException
 import soares.lucas.joao.com.example.gamehunter.adaptadores.ChipAdapter
 import soares.lucas.joao.com.example.gamehunter.adaptadores.FileiraAdapter
 import soares.lucas.joao.com.example.gamehunter.dados.Repositorios
@@ -19,9 +21,9 @@ import soares.lucas.joao.com.example.gamehunter.modais.ModalFiltros
 import soares.lucas.joao.com.example.gamehunter.modais.ModalJogo
 import soares.lucas.joao.com.example.gamehunter.modelo.Fileira
 import soares.lucas.joao.com.example.gamehunter.modelo.Filtros
-import soares.lucas.joao.com.example.gamehunter.modelo.Plataforma
+import soares.lucas.joao.com.example.gamehunter.modelo.Genero
 
-// Conteúdo da tela Principal: busca, chips de plataforma e fileiras de jogos.
+// Conteúdo da tela Principal: busca, chips de gênero e fileiras de jogos.
 // É exibido dentro da PrincipalActivity
 class InicioFragment : Fragment() {
 
@@ -31,10 +33,11 @@ class InicioFragment : Fragment() {
     private val binding get() = _binding!!
 
     // Dados exibidos e filtros em uso: as fileiras vindas do repositório (vazias até
-    // carregar), a plataforma do chip (null = "Todos") e os filtros escolhidos no
-    // modal. A plataforma e os filtros são aplicados juntos
+    // carregar), os gêneros selecionados e os filtros escolhidos no
+    // modal. Os gêneros e os filtros são aplicados juntos
     private var todasAsFileiras: List<Fileira> = emptyList()
-    private var plataformaDoChip: Plataforma? = null
+    private var carregamento: Job? = null
+    private lateinit var chipsGeneros: ChipAdapter
     private var filtros = Filtros()
 
     private lateinit var fileiraAdapter: FileiraAdapter
@@ -53,7 +56,7 @@ class InicioFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         configurarBusca()
-        configurarChipsDePlataforma()
+        configurarChipsDeGenero()
         configurarFileiras()
     }
 
@@ -77,7 +80,8 @@ class InicioFragment : Fragment() {
         binding.btnFiltros.setOnClickListener {
             ModalFiltros(requireContext(), filtros) { novosFiltros ->
                 filtros = novosFiltros
-                atualizarFileiras()
+                marcarGeneroSelecionado()
+                carregarFileiras()
             }.exibir()
         }
     }
@@ -93,20 +97,23 @@ class InicioFragment : Fragment() {
         esconderTeclado(binding.edtBusca)
         val intent = Intent(requireContext(), ResultadoPesquisaActivity::class.java)
         intent.putExtra(ResultadoPesquisaActivity.EXTRA_BUSCA, texto)
+        intent.putExtra(ResultadoPesquisaActivity.EXTRA_GENEROS, filtros.generos.map { it.name }.toTypedArray())
         startActivity(intent)
     }
 
-    // Chips de plataforma em um RecyclerView horizontal. A posição 0 é "Todos" e as
-    // seguintes são as plataformas do enum, na mesma ordem (por isso o "- 1")
-    private fun configurarChipsDePlataforma() {
-        val textos = listOf(getString(R.string.principal_todos)) + Plataforma.entries.map { it.nome }
+    // Chips de gênero em um RecyclerView horizontal. A posição 0 é "Todos" e as
+    // seguintes são os gêneros do enum, na mesma ordem (por isso o "- 1")
+    private fun configurarChipsDeGenero() {
+        val textos = listOf(getString(R.string.principal_todos)) + Genero.entries.map { getString(it.texto) }
 
         binding.rvPlataformas.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-        binding.rvPlataformas.adapter = ChipAdapter(textos) { posicao ->
-            plataformaDoChip = if (posicao == 0) null else Plataforma.entries[posicao - 1]
-            atualizarFileiras()
+        chipsGeneros = ChipAdapter(textos) { posicao ->
+            filtros = filtros.copy(generos = if (posicao == 0) emptySet() else setOf(Genero.entries[posicao - 1]))
+            carregarFileiras()
         }
+        binding.rvPlataformas.adapter = chipsGeneros
+        marcarGeneroSelecionado()
     }
 
     // Fileiras em um RecyclerView vertical. O adapter recebe o que fazer ao tocar no
@@ -114,8 +121,6 @@ class InicioFragment : Fragment() {
     // (abre o Resultado de pesquisas com todos os jogos da fileira).
     // As fileiras são pedidas ao repositório dentro de uma corrotina, ligada ao ciclo
     // de vida da View do Fragment (é cancelada se a tela for fechada antes de terminar).
-    // TODO (Frontend): mostrar loading, erro e "sem internet" (RF10) quando o
-    //  repositório real estiver pronto
     private fun configurarFileiras() {
         fileiraAdapter = FileiraAdapter(
             aoClicarNoJogo = { jogo -> ModalJogo(requireContext(), jogo).exibir() },
@@ -125,36 +130,52 @@ class InicioFragment : Fragment() {
         binding.rvFileiras.layoutManager = LinearLayoutManager(requireContext())
         binding.rvFileiras.adapter = fileiraAdapter
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            todasAsFileiras = Repositorios.jogos.fileiras()
-            atualizarFileiras()
+        carregarFileiras()
+    }
+
+    private fun marcarGeneroSelecionado() {
+        chipsGeneros.selecionar(when (filtros.generos.size) {
+            0 -> 0
+            1 -> filtros.generos.single().ordinal + 1
+            else -> -1
+        })
+    }
+
+    private fun carregarFileiras() {
+        carregamento?.cancel()
+        val generos = filtros.generos
+        carregamento = viewLifecycleOwner.lifecycleScope.launch {
+            fileiraAdapter.atualizarFileiras(emptyList())
+            binding.txtNenhumJogo.setText(R.string.itad_carregando)
+            binding.txtNenhumJogo.visibility = View.VISIBLE
+            try {
+                todasAsFileiras = Repositorios.jogos(requireContext()).fileiras(generos)
+                atualizarFileiras()
+            } catch (erro: Exception) {
+                if (erro is CancellationException) throw erro
+                binding.txtNenhumJogo.setText(mensagemErroItad(erro))
+                binding.txtNenhumJogo.visibility = View.VISIBLE
+            }
         }
     }
 
     private fun abrirFileiraCompleta(fileira: Fileira) {
         val intent = Intent(requireContext(), ResultadoPesquisaActivity::class.java)
         intent.putExtra(ResultadoPesquisaActivity.EXTRA_FILEIRA, fileira.titulo)
+        intent.putExtra(ResultadoPesquisaActivity.EXTRA_GENEROS, filtros.generos.map { it.name }.toTypedArray())
         startActivity(intent)
     }
 
-    // Em cada fileira, mantém só os jogos da plataforma do chip e aplica os filtros do
+    // Em cada fileira, mantém só os jogos dos gêneros selecionados e aplica os filtros do
     // modal; as fileiras que ficarem vazias somem. Se nada sobrar, mostra a mensagem
     // "Nenhum jogo encontrado com esses filtros"
     private fun atualizarFileiras() {
-        val plataforma = plataformaDoChip
-
         val fileirasFiltradas = todasAsFileiras
-            .map { fileira ->
-                val jogosDaPlataforma = if (plataforma == null) {
-                    fileira.jogos
-                } else {
-                    fileira.jogos.filter { plataforma in it.plataformas }
-                }
-                fileira.copy(jogos = filtros.aplicar(jogosDaPlataforma))
-            }
+            .map { fileira -> fileira.copy(jogos = filtros.aplicar(fileira.jogos)) }
             .filter { it.jogos.isNotEmpty() }
 
         fileiraAdapter.atualizarFileiras(fileirasFiltradas)
+        binding.txtNenhumJogo.setText(R.string.itad_sem_resultados)
         binding.txtNenhumJogo.visibility =
             if (fileirasFiltradas.isEmpty()) View.VISIBLE else View.GONE
     }

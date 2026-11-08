@@ -1,5 +1,8 @@
 package soares.lucas.joao.com.example.gamehunter.adaptadores
 
+import com.bumptech.glide.Glide
+import soares.lucas.joao.com.example.gamehunter.formatarValorNaMoeda
+import soares.lucas.joao.com.example.gamehunter.modelo.Moeda
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.view.animation.PathInterpolator
@@ -7,7 +10,6 @@ import androidx.recyclerview.widget.RecyclerView
 import soares.lucas.joao.com.example.gamehunter.R
 import soares.lucas.joao.com.example.gamehunter.databinding.ItemJogoBinding
 import soares.lucas.joao.com.example.gamehunter.formatarNota
-import soares.lucas.joao.com.example.gamehunter.formatarPreco
 import soares.lucas.joao.com.example.gamehunter.modelo.Jogo
 import soares.lucas.joao.com.example.gamehunter.preencherEtiquetasDePlataforma
 
@@ -66,7 +68,6 @@ class JogoAdapter(
     // reaproveita os cards, o estado da animação de toque é zerado antes de preencher.
     // Tocar no card faz a animação e só depois abre os detalhes.
     // Enquanto não há imagem, a capa mostra o título sobre um degradê.
-    // TODO (API): carregar a imagem de jogo.capaUrl em imgCapa (ex.: com Glide ou Coil)
     override fun onBindViewHolder(holder: JogoViewHolder, position: Int) {
         val jogo = jogos[position]
 
@@ -76,11 +77,12 @@ class JogoAdapter(
 
             txtTituloCapa.text = jogo.titulo
             frameCapa.clipToOutline = true
+            Glide.with(imgCapa).load(jogo.capaUrl).centerCrop().into(imgCapa)
 
             txtNota.text = formatarNota(jogo.nota)
             txtTitulo.text = jogo.titulo
-            txtPrecoLancamento.text = contexto.getString(R.string.formato_preco, formatarPreco(jogo.precoLancamento))
-            txtPrecoMedio.text = contexto.getString(R.string.formato_preco, formatarPreco(jogo.precoMedioHoje))
+            txtPrecoLancamento.text = formatarValorNaMoeda(contexto, Moeda.BRL, jogo.precoLancamento)
+            txtPrecoMedio.text = formatarValorNaMoeda(contexto, Moeda.BRL, jogo.precoMedioHoje)
             preencherEtiquetasDePlataforma(listOf(txtPlataforma1, txtPlataforma2, txtPlataforma3), jogo.plataformas)
 
             cardJogo.contentDescription = contexto.getString(

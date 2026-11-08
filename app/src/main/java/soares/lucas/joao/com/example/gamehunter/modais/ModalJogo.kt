@@ -2,6 +2,12 @@ package soares.lucas.joao.com.example.gamehunter.modais
 
 import android.content.Context
 import android.content.Intent
+import kotlinx.coroutines.cancel
+import soares.lucas.joao.com.example.gamehunter.componentes.CarregadorPrecosRegionais
+import soares.lucas.joao.com.example.gamehunter.dados.Repositorios
+import com.bumptech.glide.Glide
+import soares.lucas.joao.com.example.gamehunter.formatarValorNaMoeda
+import soares.lucas.joao.com.example.gamehunter.modelo.Moeda
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.Toast
@@ -18,7 +24,6 @@ import soares.lucas.joao.com.example.gamehunter.databinding.ItemTagPlataformaBin
 import soares.lucas.joao.com.example.gamehunter.databinding.ModalJogoBinding
 import soares.lucas.joao.com.example.gamehunter.exibirComoFolhaInferior
 import soares.lucas.joao.com.example.gamehunter.formatarNota
-import soares.lucas.joao.com.example.gamehunter.formatarPreco
 import soares.lucas.joao.com.example.gamehunter.modelo.Jogo
 import soares.lucas.joao.com.example.gamehunter.modelo.Oferta
 
@@ -43,7 +48,15 @@ class ModalJogo(
     private var mostrandoTodasAsLojas = false
 
     private val ofertaAdapter = OfertaAdapter(ofertas.take(LOJAS_INICIAIS)) { oferta -> abrirLoja(oferta) }
-    private val precoMoedaAdapter = PrecoMoedaAdapter(jogo, preferencias.moedasSelecionadas)
+    private val precoMoedaAdapter: PrecoMoedaAdapter = PrecoMoedaAdapter(preferencias.moedasSelecionadas) { tentarNovamente(it) }
+    private val escopo = contexto.criarEscopoDoModal()
+    private val carregador = CarregadorPrecosRegionais(escopo, Repositorios.jogos(contexto), jogo.idItad) {
+        precoMoedaAdapter.atualizarPrecos(it)
+    }
+
+    private fun tentarNovamente(moeda: Moeda) {
+        carregador.carregar(listOf(moeda))
+    }
 
     // Preenche cada parte do modal, cria o AlertDialog com o layout e o exibe
     // na parte de baixo da tela
@@ -57,24 +70,28 @@ class ModalJogo(
             .setView(binding.root)
             .create()
 
+        dialogo.setOnDismissListener { escopo.cancel() }
         binding.btnFechar.setOnClickListener { dialogo.dismiss() }
         exibirComoFolhaInferior(dialogo)
+        carregador.carregar(preferencias.moedasSelecionadas)
     }
 
     // Capa, nome, "gênero · desenvolvedora · ano", nota, plataformas e resumo.
     // Enquanto não há imagem, a capa mostra o título sobre um degradê.
     // Cada plataforma vira uma etiqueta criada a partir do layout item_tag_plataforma
     // e colocada no Flow, ao lado da caixa de avaliação.
-    // TODO (API): carregar a imagem de jogo.capaUrl em imgCapa
     private fun preencherInformacoes() {
         binding.frameCapa.clipToOutline = true
+        Glide.with(binding.imgCapa).load(jogo.capaUrl).centerCrop().into(binding.imgCapa)
         binding.txtTituloCapa.text = jogo.titulo
         binding.imgCapa.contentDescription = contexto.getString(R.string.desc_capa_jogo, jogo.titulo)
 
         binding.txtNome.text = jogo.titulo
-        binding.txtInformacoes.text = contexto.getString(
-            R.string.detalhe_informacoes, jogo.genero, jogo.desenvolvedora, jogo.anoLancamento
-        )
+        binding.txtInformacoes.text = listOf(
+            jogo.genero.ifBlank { contexto.getString(R.string.itad_indisponivel) },
+            jogo.desenvolvedora.ifBlank { contexto.getString(R.string.itad_indisponivel) },
+            jogo.anoLancamento.takeIf { it > 0 }?.toString() ?: contexto.getString(R.string.itad_indisponivel)
+        ).joinToString(" · ")
 
         val nota = formatarNota(jogo.nota)
         binding.txtNota.text = nota
@@ -87,16 +104,16 @@ class ModalJogo(
             adicionarAoFlow(binding.flowPlataformas, etiqueta)
         }
 
-        binding.txtResumo.text = jogo.resumo
+        binding.txtResumo.text = jogo.resumo.ifBlank { contexto.getString(R.string.itad_sem_sinopse) }
     }
 
     // Preço de lançamento, média de hoje e o selo de desconto (escondido quando o
     // jogo não está em promoção)
     private fun preencherPrecos() {
         binding.txtPrecoLancamento.text =
-            contexto.getString(R.string.formato_preco, formatarPreco(jogo.precoLancamento))
+            formatarValorNaMoeda(contexto, Moeda.BRL, jogo.precoLancamento)
         binding.txtPrecoMedio.text =
-            contexto.getString(R.string.formato_preco, formatarPreco(jogo.precoMedioHoje))
+            formatarValorNaMoeda(contexto, Moeda.BRL, jogo.precoMedioHoje)
 
         if (jogo.emPromocao) {
             binding.txtDesconto.text = contexto.getString(R.string.detalhe_desconto, jogo.desconto)
@@ -116,6 +133,7 @@ class ModalJogo(
         binding.btnEscolherMoedas.setOnClickListener {
             ModalCompararMoedas(contexto, jogo) {
                 precoMoedaAdapter.atualizarMoedas(preferencias.moedasSelecionadas)
+                carregador.carregar(preferencias.moedasSelecionadas)
             }.exibir()
         }
     }
@@ -147,7 +165,8 @@ class ModalJogo(
     // Antes, confere se existe algum app capaz de abrir o link; se não houver,
     // avisa o usuário com um Toast
     private fun abrirLoja(oferta: Oferta) {
-        val intent = Intent(Intent.ACTION_VIEW, oferta.loja.linkDeBusca(jogo.titulo).toUri())
+        val url = oferta.url ?: oferta.loja?.linkDeBusca(jogo.titulo) ?: return
+        val intent = Intent(Intent.ACTION_VIEW, url.toUri())
 
         if (intent.resolveActivity(contexto.packageManager) != null) {
             contexto.startActivity(intent)

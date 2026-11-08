@@ -2,7 +2,7 @@
 
 Aplicativo Android (Kotlin) para **buscar, comparar e acompanhar promoções de jogos digitais** em várias lojas (Steam, Epic Games, Nuuvem, PlayStation Store...) num só lugar. É o projeto final da disciplina **Programação para Dispositivos Móveis** (Engenharia de Software, IFPE – Campus Belo Jardim).
 
-> **Status atual:** o **Frontend está pronto** e funciona com **dados de exemplo** (os mesmos do protótipo no Figma). Ainda **não existe** acesso à internet nem banco de dados. Essa parte fica com o **Backend/Database**. Este README explica onde e como encaixar essa parte sem precisar mexer nas telas.
+> **Status atual:** catálogo conectado diretamente à **IsThereAnyDeal**, com chave local em `secrets.properties`. Layouts preservados; autenticação e backend de contas continuam pendentes. Veja [como configurar e testar a integração](docs/ISTHEREANYDEAL.md).
 
 ---
 
@@ -131,26 +131,14 @@ interface RepositorioDeJogos {
 - Se der erro (sem internet, HTTP 429/5xx, timeout), **lancem uma exceção**. O tratamento visual (loading, erro, "sem internet", RF10) será feito pelo Frontend em cima disso.
 - Se precisarem de **novas funções** (ex.: favoritos, histórico de preços, paginação), adicionem-nas na interface e avisem o Frontend para criar a parte visual.
 
-### 5.2 Passo a passo para trocar os dados de exemplo pelos reais
+### 5.2 Implementação atual: IsThereAnyDeal
 
-1. Criem uma classe nova em `dados/` (ou num pacote de vocês) que implemente a interface:
-   ```kotlin
-   class RepositorioDeJogosApi : RepositorioDeJogos {
-       override suspend fun fileiras(): List<Fileira> { /* CheapShark /deals + RAWG... */ }
-       override suspend fun buscarPorTitulo(texto: String): List<Jogo> { /* CheapShark /games... */ }
-       override suspend fun jogosDaFileira(tituloDaFileira: String): List<Jogo> { /* ... */ }
-   }
-   ```
-2. Em `dados/Repositorios.kt`, troquem **uma única linha**:
-   ```kotlin
-   object Repositorios {
-       val jogos: RepositorioDeJogos = RepositorioDeJogosApi()   // antes: RepositorioDeJogosDeExemplo
-   }
-   ```
-3. Pronto: Principal, Resultado de pesquisas, "Ver tudo" e os modais passam a mostrar os dados reais.
-4. Quando não for mais necessário, `RepositorioDeJogosDeExemplo.kt` pode ser apagado.
+`Repositorios.jogos(contexto)` fornece uma instância compartilhada de `RepositorioItad`.
+Ela consulta ofertas, pesquisa, detalhes e preços, converte os resultados para os modelos
+e mantém um cache de cinco minutos. O catálogo de exemplo permanece no código apenas
+como referência e **não é usado como fallback** em erros de rede ou chave ausente.
 
-> **Importante:** convertam as respostas das APIs para os modelos da [seção 6](#6-formato-dos-dados-modelos) (`Jogo`, `Oferta`, `Fileira`...). Se algum campo não fizer sentido com o que a API devolve, conversem com o Frontend antes de mudar o modelo, porque as telas leem esses campos.
+A configuração, os limites desta etapa e os testes estão em [docs/ISTHEREANYDEAL.md](docs/ISTHEREANYDEAL.md).
 
 ### 5.3 Conta do usuário (`PreferenciasUsuario`)
 
@@ -166,7 +154,7 @@ Quando o Backend de contas existir:
 - As funções `salvarEmail`/`salvarPerfil` e as leituras de `nome`, `email` e `dataNascimento` saem do `PreferenciasUsuario`.
 - O **Sair** (`PrincipalActivity`) deve encerrar a sessão (ex.: apagar o token salvo).
 
-### 5.4 Regras que hoje estão no app e podem ir para o Backend
+### 5.4 Referência do protótipo (anterior à integração)
 
 Para as telas funcionarem com dados de exemplo, alguns cálculos ficaram no próprio app. Se a API de vocês já entregar esses valores prontos, basta preenchê-los e simplificar os modelos:
 
@@ -180,7 +168,9 @@ Para as telas funcionarem com dados de exemplo, alguns cálculos ficaram no pró
 
 ---
 
-## 6. Formato dos dados (modelos)
+## 6. Formato dos dados do protótipo (referência)
+
+Os modelos atuais acrescentam `idItad` em `Jogo` e nome, URL e preço regular em `Oferta`; a loja do enum pode ser nula. Valores numéricos indisponíveis usam `Double.NaN`. Consulte os arquivos Kotlin e o guia da integração para o contrato atual.
 
 Todos ficam em `modelo/`. **Preços em reais (R$)**, exceto `precoEmDolar`.
 
@@ -215,7 +205,9 @@ data class Fileira(val titulo: String, val subtitulo: String, val jogos: List<Jo
 
 ---
 
-## 7. Lista de pendências (TODOs) por área
+## 7. Lista de pendências original por área
+
+Esta lista registra o planejamento anterior à conexão com IsThereAnyDeal. Repositório real, capas, links e mensagens básicas de carregamento/erro já foram implementados; estados completos, atualização manual, paginação e backend continuam para etapas futuras.
 
 Todas estão marcadas no código. Busquem por `TODO` no Android Studio (**View → Tool Windows → TODO**).
 
@@ -255,7 +247,7 @@ Baseado no PDF *Requisitos Mínimos para o Projeto Final*:
 | 2 | Android + Kotlin | ✅ |
 | 3 | Múltiplas Activities + pelo menos um Fragment | ✅ 6 Activities + `InicioFragment` |
 | 4 | Persistência de dados (SQLite/Room ou Firebase/API REST) | ⏳ **Database**: hoje só há SharedPreferences para preferências de tela |
-| 5 | Integração com serviço web | ⏳ **Backend**: CheapShark, RAWG/IGDB, câmbio |
+| 5 | Integração com serviço web | Implementada: IsThereAnyDeal; requer configurar chave local |
 | 6 | Repositório Git com acesso ao professor | ✅ Este repositório (lembrar de dar acesso ao professor) |
 | 7 | Equipe de até 3 pessoas | ✅ |
 | 8 | Apresentação em pitch | ⏳ |

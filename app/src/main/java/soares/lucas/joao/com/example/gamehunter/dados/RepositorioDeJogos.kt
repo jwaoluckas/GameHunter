@@ -1,7 +1,9 @@
 package soares.lucas.joao.com.example.gamehunter.dados
 
+import soares.lucas.joao.com.example.gamehunter.modelo.Genero
 import soares.lucas.joao.com.example.gamehunter.modelo.Fileira
 import soares.lucas.joao.com.example.gamehunter.modelo.Jogo
+import soares.lucas.joao.com.example.gamehunter.modelo.Moeda
 
 // CONTRATO entre o Frontend e o Backend/Database: tudo o que as telas precisam pedir
 // sobre jogos passa por aqui. As telas só conhecem esta interface, nunca a origem dos
@@ -13,15 +15,19 @@ import soares.lucas.joao.com.example.gamehunter.modelo.Jogo
 // exceção; o tratamento visual desses casos (RF10) ainda será feito nas telas
 interface RepositorioDeJogos {
 
+    // Média das ofertas na moeda solicitada. Null indica ausência de ofertas.
+    // O catálogo de exemplo não simula preços regionais.
+    suspend fun precoRegional(idItad: String, moeda: Moeda): Double? = null
+
     // Fileiras da tela Principal ("Mais vendidos", "De acordo com o que você gosta"...),
     // cada uma com título, subtítulo e a lista de jogos do carrossel
-    suspend fun fileiras(): List<Fileira>
+    suspend fun fileiras(generos: Set<Genero> = emptySet()): List<Fileira>
 
     // Busca por título (RF02), usada pela tela Resultado de pesquisas.
-    // Ex. real: endpoint /games da CheapShark + detalhes da RAWG/IGDB
+    // Implementação atual: pesquisa, informações e preços da IsThereAnyDeal.
     suspend fun buscarPorTitulo(texto: String): List<Jogo>
 
     // Todos os jogos de uma fileira, usado pelo botão "Ver tudo" (abre o Resultado
     // de pesquisas). Recebe o mesmo título que veio em fileiras()
-    suspend fun jogosDaFileira(tituloDaFileira: String): List<Jogo>
+    suspend fun jogosDaFileira(tituloDaFileira: String, generos: Set<Genero> = emptySet()): List<Jogo>
 }

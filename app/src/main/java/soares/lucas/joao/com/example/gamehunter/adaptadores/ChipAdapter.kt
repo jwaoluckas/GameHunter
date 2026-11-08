@@ -16,6 +16,13 @@ class ChipAdapter(
     // Começa com o primeiro chip ("Todos"/"Todas") selecionado
     private var posicaoSelecionada = 0
 
+    fun selecionar(posicao: Int) {
+        val anterior = posicaoSelecionada
+        posicaoSelecionada = posicao
+        if (anterior in opcoes.indices) notifyItemChanged(anterior)
+        if (posicao in opcoes.indices) notifyItemChanged(posicao)
+    }
+
     class ChipViewHolder(val binding: ItemChipBinding) : RecyclerView.ViewHolder(binding.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ChipViewHolder {
@@ -34,10 +41,8 @@ class ChipAdapter(
         chip.isSelected = position == posicaoSelecionada
 
         chip.setOnClickListener {
-            val posicaoAnterior = posicaoSelecionada
-            posicaoSelecionada = holder.bindingAdapterPosition
-            notifyItemChanged(posicaoAnterior)
-            notifyItemChanged(posicaoSelecionada)
+            if (holder.bindingAdapterPosition == RecyclerView.NO_POSITION) return@setOnClickListener
+            selecionar(holder.bindingAdapterPosition)
             aoSelecionar(posicaoSelecionada)
         }
     }

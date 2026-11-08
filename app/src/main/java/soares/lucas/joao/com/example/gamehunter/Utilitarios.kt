@@ -146,11 +146,12 @@ fun esconderTeclado(campo: View) {
 // com o símbolo da moeda (ex.: "US$ 69,99"). O "R$" dos preços em reais é
 // adicionado pelo strings.xml (formato_preco)
 
-fun formatarPreco(valor: Double): String = String.format(LOCALE_BRASIL, "%,.2f", valor)
+fun formatarPreco(valor: Double): String = if (valor.isFinite()) String.format(LOCALE_BRASIL, "%,.2f", valor) else "—"
 
-fun formatarNota(nota: Double): String = String.format(LOCALE_BRASIL, "%.1f", nota)
+fun formatarNota(nota: Double): String = if (nota.isFinite()) String.format(LOCALE_BRASIL, "%.1f", nota) else "—"
 
 fun formatarValorNaMoeda(contexto: Context, moeda: Moeda, valor: Double): String {
+    if (!valor.isFinite()) return contexto.getString(R.string.itad_indisponivel)
     return contexto.getString(R.string.formato_moeda, moeda.simbolo, formatarPreco(valor))
 }
 

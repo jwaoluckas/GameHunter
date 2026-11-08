@@ -10,7 +10,7 @@ import soares.lucas.joao.com.example.gamehunter.exibirComoFolhaInferior
 import soares.lucas.joao.com.example.gamehunter.modelo.Filtros
 import soares.lucas.joao.com.example.gamehunter.modelo.Loja
 import soares.lucas.joao.com.example.gamehunter.modelo.Ordenacao
-import soares.lucas.joao.com.example.gamehunter.modelo.Plataforma
+import soares.lucas.joao.com.example.gamehunter.modelo.Genero
 
 // Modal de FILTROS E ORDENAÇÃO (RF05), usado na tela Principal e no Resultado de
 // pesquisas. Abre com os filtros que já estão em uso e, ao tocar em "Aplicar filtros",
@@ -24,7 +24,7 @@ class ModalFiltros(
     private val binding = ModalFiltrosBinding.inflate(LayoutInflater.from(contexto))
 
     // Um grupo de chips para cada seção do modal. Ordenação e preço máximo aceitam só
-    // uma opção; plataformas e lojas aceitam várias. "Somente em promoção" é um único
+    // uma opção; gêneros e lojas aceitam várias. "Somente em promoção" é um único
     // chip que liga e desliga (seleção múltipla com uma opção só).
     // Os textos dos preços máximos são "Até R$ 50", "Até R$ 100", "Até R$ 200" e
     // "Qualquer valor" (a última opção, que significa sem limite)
@@ -33,9 +33,9 @@ class ModalFiltros(
         Ordenacao.entries.map { contexto.getString(it.texto) },
         selecaoMultipla = false
     )
-    private val grupoPlataformas = GrupoDeChips(
+    private val grupoGeneros = GrupoDeChips(
         binding.flowPlataformas,
-        Plataforma.entries.map { it.nome },
+        Genero.entries.map { contexto.getString(it.texto) },
         selecaoMultipla = true
     )
     private val grupoLojas = GrupoDeChips(
@@ -78,7 +78,7 @@ class ModalFiltros(
     // Sem preço máximo (null), marca o último chip ("Qualquer valor")
     private fun mostrarFiltros(filtros: Filtros) {
         grupoOrdenacao.selecionar(filtros.ordenacao.ordinal)
-        grupoPlataformas.selecionar(filtros.plataformas.map { it.ordinal })
+        grupoGeneros.selecionar(filtros.generos.map { it.ordinal })
         grupoLojas.selecionar(filtros.lojas.map { it.ordinal })
 
         val precoMaximo = filtros.precoMaximo
@@ -89,13 +89,13 @@ class ModalFiltros(
     }
 
     // Chips -> Filtros: faz o caminho contrário, transformando as posições marcadas
-    // de volta em ordenação, plataformas, lojas, preço máximo e promoção
+    // de volta em ordenação, gêneros, lojas, preço máximo e promoção
     private fun lerFiltros(): Filtros {
         val indicePreco = grupoPrecoMaximo.selecionado()
 
         return Filtros(
             ordenacao = Ordenacao.entries[grupoOrdenacao.selecionado()],
-            plataformas = grupoPlataformas.selecionados().map { Plataforma.entries[it] }.toSet(),
+            generos = grupoGeneros.selecionados().map { Genero.entries[it] }.toSet(),
             lojas = grupoLojas.selecionados().map { Loja.entries[it] }.toSet(),
             precoMaximo = Filtros.PRECOS_MAXIMOS.getOrNull(indicePreco),
             somentePromocao = grupoMostrar.selecionados().isNotEmpty()

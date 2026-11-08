@@ -14,6 +14,6 @@ enum class Loja(val nome: String, val plataforma: String, private val urlDeBusca
 
     // Endereço da busca pelo jogo no site da loja. Uri.encode troca espaços e
     // caracteres especiais do título por códigos aceitos em um endereço web.
-    // TODO (API): trocar pelo link de redirecionamento da oferta na CheapShark (dealID)
+    // Usado somente pelos dados de exemplo; ofertas reais fornecem Oferta.url.
     fun linkDeBusca(tituloDoJogo: String): String = urlDeBusca + Uri.encode(tituloDoJogo)
 }
