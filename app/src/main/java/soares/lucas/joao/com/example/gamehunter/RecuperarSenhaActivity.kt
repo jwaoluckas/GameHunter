@@ -1,8 +1,10 @@
 package soares.lucas.joao.com.example.gamehunter
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import com.google.firebase.auth.FirebaseAuth
 import soares.lucas.joao.com.example.gamehunter.databinding.ActivityRecuperarSenhaBinding
 
 // Tela de RECUPERAR SENHA
@@ -14,6 +16,7 @@ class RecuperarSenhaActivity : AppCompatActivity() {
     }
 
     private lateinit var binding: ActivityRecuperarSenhaBinding
+    private val autenticacao by lazy { FirebaseAuth.getInstance() }
 
     // Cria a tela, preenche o e-mail recebido do Login (se houver) e configura os cliques
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,13 +33,25 @@ class RecuperarSenhaActivity : AppCompatActivity() {
 
     // Valida o e-mail (vazio ou com formato inválido mostra erro no campo)
     // e, se estiver certo, confirma o envio
+    // Solicita ao Firebase o envio do link para redefinir a senha.
     private fun enviarLinkRecuperacao() {
         if (!validarCampoEmail(binding.edtEmail)) {
             return
         }
 
-        // TODO (Backend): enviar o e-mail para o serviço de recuperação de senha da equipe.
-        mostrarDialogoConfirmacao(binding.edtEmail.text.toString().trim())
+        val email = binding.edtEmail.text.toString().trim()
+        binding.btnEnviar.isEnabled = false
+        autenticacao.setLanguageCode("pt-BR")
+
+        autenticacao.sendPasswordResetEmail(email)
+            .addOnSuccessListener {
+                binding.btnEnviar.isEnabled = true
+                mostrarDialogoConfirmacao(email)
+            }
+            .addOnFailureListener {
+                binding.btnEnviar.isEnabled = true
+                Toast.makeText(this, R.string.erro_recuperar_senha, Toast.LENGTH_LONG).show()
+            }
     }
 
     // AlertDialog avisando que o link foi enviado. Não pode ser fechado tocando fora;

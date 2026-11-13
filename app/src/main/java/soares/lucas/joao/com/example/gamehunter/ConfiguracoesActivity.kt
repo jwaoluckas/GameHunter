@@ -6,6 +6,11 @@ import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageMetadata
 import soares.lucas.joao.com.example.gamehunter.componentes.GrupoDeChips
 import soares.lucas.joao.com.example.gamehunter.dados.PreferenciasUsuario
 import soares.lucas.joao.com.example.gamehunter.databinding.ActivityConfiguracoesBinding
@@ -24,6 +29,9 @@ class ConfiguracoesActivity : AppCompatActivity() {
     private lateinit var binding: ActivityConfiguracoesBinding
     private lateinit var preferencias: PreferenciasUsuario
     private lateinit var grupoMoedaPadrao: GrupoDeChips
+    private val autenticacao by lazy { FirebaseAuth.getInstance() }
+    private val banco by lazy { FirebaseFirestore.getInstance() }
+    private val armazenamento by lazy { FirebaseStorage.getInstance() }
 
     // Foto de perfil escolhida (opcional, por isso pode ser null)
     private var fotoSelecionada: Uri? = null
@@ -70,6 +78,7 @@ class ConfiguracoesActivity : AppCompatActivity() {
         binding.edtEmail.setText(preferencias.email)
         binding.edtDataNascimento.setText(preferencias.dataNascimento)
         binding.swAlertasPromocao.isChecked = preferencias.alertasPromocao
+        carregarFotoPerfil(binding.imgFotoPerfil, preferencias.fotoCaminho)
 
         val indiceMoeda = MOEDAS_PADRAO.indexOf(preferencias.moedaPadrao)
         grupoMoedaPadrao.selecionar(if (indiceMoeda >= 0) indiceMoeda else 0)
@@ -116,9 +125,54 @@ class ConfiguracoesActivity : AppCompatActivity() {
             alertasPromocao = binding.swAlertasPromocao.isChecked
         )
 
-        // TODO (Backend): enviar os dados, a nova senha (se preenchida) e a foto
-        //  (fotoSelecionada, que pode ser null) para o serviço da equipe.
+        // TODO (Backend): sincronizar nome, e-mail, data e nova senha com a conta.
+        val foto = fotoSelecionada
+        if (foto != null) {
+            enviarFotoPerfil(foto)
+            return
+        }
+
         //  TODO (Notificações): usar alertasPromocao para avisar o usuário sobre promoções
+        concluirSalvamento()
+    }
+
+    // Envia a nova foto e associa seu caminho ao perfil no Firestore.
+    private fun enviarFotoPerfil(foto: Uri) {
+        val usuario = autenticacao.currentUser
+        if (usuario == null) {
+            Toast.makeText(this, R.string.erro_sessao_expirada, Toast.LENGTH_LONG).show()
+            return
+        }
+
+        binding.btnSalvar.isEnabled = false
+        val caminho = caminhoFotoPerfil(usuario.uid)
+        val metadata = StorageMetadata.Builder()
+            .setContentType(contentResolver.getType(foto) ?: "image/jpeg")
+            .build()
+
+        armazenamento.reference.child(caminho)
+            .putFile(foto, metadata)
+            .addOnSuccessListener {
+                banco.collection("usuarios")
+                    .document(usuario.uid)
+                    .set(mapOf("fotoCaminho" to caminho), SetOptions.merge())
+                    .addOnSuccessListener {
+                        preferencias.salvarFotoPerfil(caminho)
+                        concluirSalvamento()
+                    }
+                    .addOnFailureListener {
+                        binding.btnSalvar.isEnabled = true
+                        Toast.makeText(this, R.string.erro_salvar_foto, Toast.LENGTH_LONG).show()
+                    }
+            }
+            .addOnFailureListener {
+                binding.btnSalvar.isEnabled = true
+                Toast.makeText(this, R.string.erro_enviar_foto, Toast.LENGTH_LONG).show()
+            }
+    }
+
+    // Confirma as alterações mantendo o comportamento original da tela.
+    private fun concluirSalvamento() {
         Toast.makeText(this, R.string.config_salvo, Toast.LENGTH_SHORT).show()
         finish()
     }

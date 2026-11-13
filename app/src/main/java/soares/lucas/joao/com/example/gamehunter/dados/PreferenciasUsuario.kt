@@ -21,6 +21,7 @@ class PreferenciasUsuario(contexto: Context) {
         private const val CHAVE_NOME = "nome"
         private const val CHAVE_EMAIL = "email"
         private const val CHAVE_DATA_NASCIMENTO = "data_nascimento"
+        private const val CHAVE_FOTO_CAMINHO = "foto_caminho"
         private const val CHAVE_MOEDA_PADRAO = "moeda_padrao"
         private const val CHAVE_ALERTAS_PROMOCAO = "alertas_promocao"
         private const val CHAVE_MOEDAS_SELECIONADAS = "moedas_selecionadas"
@@ -42,6 +43,9 @@ class PreferenciasUsuario(contexto: Context) {
 
     val dataNascimento: String
         get() = preferences.getString(CHAVE_DATA_NASCIMENTO, "").orEmpty()
+
+    val fotoCaminho: String
+        get() = preferences.getString(CHAVE_FOTO_CAMINHO, "").orEmpty()
 
     val alertasPromocao: Boolean
         get() = preferences.getBoolean(CHAVE_ALERTAS_PROMOCAO, true)
@@ -71,6 +75,11 @@ class PreferenciasUsuario(contexto: Context) {
             putString(CHAVE_EMAIL, email)
             putString(CHAVE_DATA_NASCIMENTO, dataNascimento)
         }
+    }
+
+    // Mantém localmente o caminho da foto privada salva no Firebase Storage.
+    fun salvarFotoPerfil(caminho: String) {
+        preferences.edit { putString(CHAVE_FOTO_CAMINHO, caminho) }
     }
 
     fun salvarPreferencias(moedaPadrao: Moeda, alertasPromocao: Boolean) {

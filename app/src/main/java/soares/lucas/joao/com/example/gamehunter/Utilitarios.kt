@@ -25,6 +25,7 @@ import soares.lucas.joao.com.example.gamehunter.modelo.Plataforma
 // ("top-level"), podem ser chamadas de qualquer lugar do app.
 
 const val TAMANHO_MINIMO_SENHA = 8
+private const val CARACTERES_ESPECIAIS_SENHA = "!@#\$%&*"
 
 // Quantidade máxima de etiquetas de plataforma nos cards
 private const val MAXIMO_ETIQUETAS = 3
@@ -59,9 +60,8 @@ fun validarCampoEmail(campo: EditText): Boolean {
     return true
 }
 
-// Senha nova + confirmação: senha com no mínimo TAMANHO_MINIMO_SENHA caracteres e
-// confirmação igual. Quando a senha não é obrigatória (Configurações), deixar os
-// dois campos vazios significa "não alterar a senha"
+// Exige 8 caracteres, maiúscula, minúscula, número, símbolo e confirmação igual.
+// Em Configurações, deixar os dois campos vazios significa "não alterar a senha".
 fun validarNovaSenha(campoSenha: EditText, campoConfirmacao: EditText, obrigatoria: Boolean): Boolean {
     val contexto = campoSenha.context
     val senha = campoSenha.text.toString()
@@ -78,6 +78,18 @@ fun validarNovaSenha(campoSenha: EditText, campoConfirmacao: EditText, obrigator
         valido = false
     } else if (senha.length < TAMANHO_MINIMO_SENHA) {
         campoSenha.error = contexto.getString(R.string.erro_senha_curta)
+        valido = false
+    } else if (senha.none { it in 'A'..'Z' }) {
+        campoSenha.error = contexto.getString(R.string.erro_senha_maiuscula)
+        valido = false
+    } else if (senha.none { it in 'a'..'z' }) {
+        campoSenha.error = contexto.getString(R.string.erro_senha_minuscula)
+        valido = false
+    } else if (senha.none { it in '0'..'9' }) {
+        campoSenha.error = contexto.getString(R.string.erro_senha_numero)
+        valido = false
+    } else if (senha.none { it in CARACTERES_ESPECIAIS_SENHA }) {
+        campoSenha.error = contexto.getString(R.string.erro_senha_especial)
         valido = false
     }
 

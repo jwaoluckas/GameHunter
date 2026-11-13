@@ -31,6 +31,10 @@
     <string name="erro_campo_obrigatorio">Campo obrigatório</string>
     <string name="erro_email_invalido">Digite um e-mail válido</string>
     <string name="erro_senha_curta">A senha deve ter pelo menos 8 caracteres</string>
+    <string name="erro_senha_maiuscula">Inclua pelo menos uma letra maiúscula (A–Z)</string>
+    <string name="erro_senha_minuscula">Inclua pelo menos uma letra minúscula (a–z)</string>
+    <string name="erro_senha_numero">Inclua pelo menos um número (0–9)</string>
+    <string name="erro_senha_especial">Inclua pelo menos um caractere especial (!, @, #, $, %, &amp; ou *)</string>
     <string name="erro_senhas_diferentes">As senhas não coincidem</string>
 
     <!-- Botões dos diálogos -->
@@ -44,6 +48,7 @@
     <string name="login_botao_entrar">Entrar</string>
     <string name="login_botao_cadastrar">Cadastrar</string>
     <string name="login_sucesso">Login validado! Bem-vindo(a), %1$s</string>
+    <string name="erro_login">E-mail ou senha inválidos.</string>
     <string name="sair_titulo">Sair do aplicativo</string>
     <string name="sair_mensagem">Deseja realmente sair do GameHunter?</string>
 
@@ -54,6 +59,11 @@
     <string name="cadastro_ja_tem_conta">Já tem conta?</string>
     <string name="cadastro_entrar">Entrar</string>
     <string name="cadastro_sucesso">Conta criada com sucesso!</string>
+    <string name="erro_cadastro">Não foi possível criar a conta. Verifique os dados e tente novamente.</string>
+    <string name="erro_salvar_perfil">Não foi possível salvar o perfil. Tente criar a conta novamente.</string>
+    <string name="erro_enviar_foto">Não foi possível enviar a foto. Escolha outra imagem ou tente novamente.</string>
+    <string name="erro_salvar_foto">A foto foi enviada, mas não foi possível atualizar o perfil.</string>
+    <string name="erro_sessao_expirada">Sua sessão expirou. Entre novamente para alterar a foto.</string>
 
     <!-- Tela de Recuperar senha -->
     <string name="recuperar_titulo">Recuperar senha</string>
@@ -64,6 +74,7 @@
     <string name="recuperar_lembrou_senha">Lembrou a senha?</string>
     <string name="recuperar_voltar_login">Voltar ao login</string>
     <string name="recuperar_dialogo_titulo">Verifique seu e-mail</string>
+    <string name="erro_recuperar_senha">Não foi possível enviar o link. Verifique sua conexão e tente novamente.</string>
     <string name="recuperar_dialogo_mensagem">Se o e-mail %1$s estiver cadastrado, você receberá um link para redefinir sua senha.</string>
 
     <!-- Tela Principal -->

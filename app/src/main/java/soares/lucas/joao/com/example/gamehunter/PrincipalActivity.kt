@@ -6,6 +6,7 @@ import android.view.Gravity
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import com.google.firebase.auth.FirebaseAuth
 import soares.lucas.joao.com.example.gamehunter.dados.PreferenciasUsuario
 import soares.lucas.joao.com.example.gamehunter.databinding.ActivityPrincipalBinding
 import soares.lucas.joao.com.example.gamehunter.databinding.DialogMenuPerfilBinding
@@ -43,6 +44,8 @@ class PrincipalActivity : AppCompatActivity() {
 
         menuBinding.txtNomeUsuario.text = preferencias.nome.ifEmpty { getString(R.string.usuario_padrao) }
         menuBinding.txtEmailUsuario.text = preferencias.email
+        menuBinding.imgFotoUsuario.clipToOutline = true
+        carregarFotoPerfil(menuBinding.imgFotoUsuario, preferencias.fotoCaminho)
 
         val dialogo = AlertDialog.Builder(this)
             .setView(menuBinding.root)
@@ -78,8 +81,9 @@ class PrincipalActivity : AppCompatActivity() {
 
     // Volta para o Login limpando a pilha de telas (as flags fazem com que o botão
     // de voltar no Login não retorne para a Principal)
+    // Encerra a sessão do Firebase antes de voltar para o Login.
     private fun sair() {
-        // TODO (Backend): encerrar a sessão do usuário (ex.: apagar o token salvo)
+        FirebaseAuth.getInstance().signOut()
         val intent = Intent(this, MainActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
