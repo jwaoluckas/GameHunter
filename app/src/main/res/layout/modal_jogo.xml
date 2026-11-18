@@ -53,6 +53,23 @@
                 android:layout_marginTop="8dp"
                 android:background="@drawable/bg_alca_capa" />
 
+            <!-- Botão de FAVORITAR, no canto superior esquerdo (como no Figma), espelhando o
+                 botão fechar. A View tem 48dp para facilitar o toque, mas o círculo visível
+                 tem 36dp (o fundo bg_botao_favoritar tem 6dp de recuo); por isso a margem é
+                 6dp, deixando o círculo a 12dp das bordas, igual ao fechar.
+                 Começa com a estrela vazia; o ModalJogo troca o ícone e a descrição
+                 conforme o jogo está ou não nos favoritos -->
+            <ImageView
+                android:id="@+id/btnFavoritar"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_gravity="top|start"
+                android:layout_margin="6dp"
+                android:background="@drawable/bg_botao_favoritar"
+                android:contentDescription="@string/desc_adicionar_favorito"
+                android:scaleType="center"
+                android:src="@drawable/ic_estrela_vazia" />
+
             <ImageView
                 android:id="@+id/btnFechar"
                 android:layout_width="36dp"

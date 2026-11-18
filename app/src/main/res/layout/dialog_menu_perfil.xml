@@ -90,6 +90,35 @@
             android:textSize="14sp" />
     </LinearLayout>
 
+    <!-- Item "Favoritos" (entre Configurações e Sair, como no Figma): abre a tela Favoritos -->
+    <LinearLayout
+        android:id="@+id/itemFavoritos"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:background="@drawable/bg_item_menu"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="8dp"
+        android:paddingVertical="12dp">
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:contentDescription="@null"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_favoritos" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:fontFamily="@font/exo2_medium"
+            android:text="@string/menu_favoritos"
+            android:textColor="@color/gh_texto_primario"
+            android:textSize="14sp" />
+    </LinearLayout>
+
     <LinearLayout
         android:id="@+id/itemSair"
         android:layout_width="match_parent"

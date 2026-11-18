@@ -35,9 +35,10 @@ class PrincipalActivity : AppCompatActivity() {
         configurarBotaoVoltar()
     }
 
-    // Menu do perfil (Configurações e Sair), feito com um AlertDialog usando o layout
-    // dialog_menu_perfil.xml. Nome e e-mail vêm das preferências salvas no Login,
-    // Cadastro e Configurações; sem nome salvo, aparece "Jogador"
+    // Menu do perfil (Configurações, Favoritos e Sair), feito com um AlertDialog usando o
+    // layout dialog_menu_perfil.xml. Nome e e-mail vêm das preferências salvas no Login,
+    // Cadastro e Configurações; sem nome salvo, aparece "Jogador".
+    // Cada item fecha o menu antes de abrir a tela correspondente
     private fun mostrarMenuPerfil() {
         val menuBinding = DialogMenuPerfilBinding.inflate(layoutInflater)
         val preferencias = PreferenciasUsuario(this)
@@ -54,6 +55,11 @@ class PrincipalActivity : AppCompatActivity() {
         menuBinding.itemConfiguracoes.setOnClickListener {
             dialogo.dismiss()
             startActivity(Intent(this, ConfiguracoesActivity::class.java))
+        }
+
+        menuBinding.itemFavoritos.setOnClickListener {
+            dialogo.dismiss()
+            startActivity(Intent(this, FavoritosActivity::class.java))
         }
 
         menuBinding.itemSair.setOnClickListener {

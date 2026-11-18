@@ -20,6 +20,7 @@ import soares.lucas.joao.com.example.gamehunter.adaptadores.OfertaAdapter
 import soares.lucas.joao.com.example.gamehunter.adaptadores.PrecoMoedaAdapter
 import soares.lucas.joao.com.example.gamehunter.adicionarAoFlow
 import soares.lucas.joao.com.example.gamehunter.dados.PreferenciasUsuario
+import soares.lucas.joao.com.example.gamehunter.dados.RepositorioFavoritos
 import soares.lucas.joao.com.example.gamehunter.databinding.ItemTagPlataformaBinding
 import soares.lucas.joao.com.example.gamehunter.databinding.ModalJogoBinding
 import soares.lucas.joao.com.example.gamehunter.exibirComoFolhaInferior
@@ -54,6 +55,10 @@ class ModalJogo(
         precoMoedaAdapter.atualizarPrecos(it)
     }
 
+    // Favoritos do usuário logado (Firestore) e se ESTE jogo está entre eles
+    private val favoritos = RepositorioFavoritos()
+    private var favorito = false
+
     private fun tentarNovamente(moeda: Moeda) {
         carregador.carregar(listOf(moeda))
     }
@@ -62,6 +67,7 @@ class ModalJogo(
     // na parte de baixo da tela
     fun exibir() {
         preencherInformacoes()
+        configurarFavorito()
         preencherPrecos()
         configurarMoedas()
         configurarLojas()
@@ -105,6 +111,61 @@ class ModalJogo(
         }
 
         binding.txtResumo.text = jogo.resumo.ifBlank { contexto.getString(R.string.itad_sem_sinopse) }
+    }
+
+    // Estrela de FAVORITAR na capa. Começa vazia e desabilitada enquanto o Firestore
+    // responde se o jogo já é favorito; ao receber a resposta, mostra o estado salvo.
+    // Se a leitura falhar (ex.: sem internet), avisa com um Toast e libera o botão
+    // mesmo assim, para o usuário poder favoritar
+    private fun configurarFavorito() {
+        mostrarEstrela(false)
+        binding.btnFavoritar.isEnabled = false
+
+        favoritos.verificar(
+            jogo,
+            aoTerminar = { jaEFavorito ->
+                favorito = jaEFavorito
+                mostrarEstrela(jaEFavorito)
+                binding.btnFavoritar.isEnabled = true
+            },
+            aoFalhar = {
+                binding.btnFavoritar.isEnabled = true
+                Toast.makeText(contexto, R.string.erro_favoritos_carregar, Toast.LENGTH_SHORT).show()
+            }
+        )
+
+        binding.btnFavoritar.setOnClickListener { alternarFavorito() }
+    }
+
+    // Toque na estrela: a tela muda NA HORA (preenchida = salvo, vazia = removido) e o
+    // Firestore é atualizado em seguida. Se a gravação falhar, a estrela volta ao
+    // estado anterior e um Toast avisa o usuário. O "if" evita desfazer um toque mais
+    // recente caso o usuário tenha tocado de novo antes da falha chegar
+    private fun alternarFavorito() {
+        val novoEstado = !favorito
+        favorito = novoEstado
+        mostrarEstrela(novoEstado)
+
+        val desfazer = {
+            if (favorito == novoEstado) {
+                favorito = !novoEstado
+                mostrarEstrela(!novoEstado)
+            }
+            Toast.makeText(contexto, R.string.erro_favoritos_salvar, Toast.LENGTH_SHORT).show()
+        }
+
+        if (novoEstado) favoritos.adicionar(jogo, desfazer) else favoritos.remover(jogo, desfazer)
+    }
+
+    // Troca o ícone (vazia/preenchida) e o texto lido pelo leitor de tela, que diz
+    // o que o toque vai fazer ("Adicionar aos favoritos" ou "Remover dos favoritos")
+    private fun mostrarEstrela(ehFavorito: Boolean) {
+        binding.btnFavoritar.setImageResource(
+            if (ehFavorito) R.drawable.ic_estrela_preenchida else R.drawable.ic_estrela_vazia
+        )
+        binding.btnFavoritar.contentDescription = contexto.getString(
+            if (ehFavorito) R.string.desc_remover_favorito else R.string.desc_adicionar_favorito
+        )
     }
 
     // Preço de lançamento, média de hoje e o selo de desconto (escondido quando o

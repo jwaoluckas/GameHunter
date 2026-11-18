@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Fundo do botão de favoritar sobre a capa do jogo. Reaproveita o círculo preto
+     semitransparente do botão fechar, mas com 6dp de recuo (inset) em cada lado:
+     a View tem 48dp (área mínima de toque recomendada) e o círculo visível fica com
+     36dp, igual ao Figma e ao botão fechar -->
+<inset xmlns:android="http://schemas.android.com/apk/res/android"
+    android:drawable="@drawable/bg_botao_fechar_capa"
+    android:inset="6dp" />

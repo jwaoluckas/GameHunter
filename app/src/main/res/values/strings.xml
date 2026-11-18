@@ -102,6 +102,7 @@
 
     <!-- Menu de perfil -->
     <string name="menu_configuracoes">Configurações</string>
+    <string name="menu_favoritos">Favoritos</string>
     <string name="menu_sair">Sair</string>
     <!-- Nome exibido enquanto o usuário ainda não informou o nome -->
     <string name="usuario_padrao">Jogador</string>
@@ -154,6 +155,15 @@
     <string name="oferta_menor_preco">Menor preço · %1$s</string>
     <string name="desc_ir_loja">Abrir a oferta na loja %1$s</string>
     <string name="erro_abrir_link">Nenhum navegador encontrado para abrir a loja.</string>
+
+    <!-- Favoritos: estrela do modal do jogo (descrições lidas pelo leitor de tela dizem
+         o que o toque vai fazer), tela Favoritos e mensagens de erro do Firestore -->
+    <string name="desc_adicionar_favorito">Adicionar aos favoritos</string>
+    <string name="desc_remover_favorito">Remover dos favoritos</string>
+    <string name="favoritos_subtitulo">Os jogos que você favoritar na ★ do modal aparecem aqui.</string>
+    <string name="favoritos_vazio">Você ainda não favoritou nenhum jogo.\nToque na ★ de um jogo para guardá-lo aqui.</string>
+    <string name="erro_favoritos_carregar">Não foi possível carregar os favoritos. Verifique a internet.</string>
+    <string name="erro_favoritos_salvar">Não foi possível atualizar os favoritos. Tente novamente.</string>
 
     <!-- Modal de comparar moedas -->
     <string name="moedas_subtitulo">Escolha em quais moedas ver o preço</string>

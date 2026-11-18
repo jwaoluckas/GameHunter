@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Layout da tela FAVORITOS (usado pela FavoritosActivity), seguindo o frame do Figma:
+     barra superior (voltar + título + logo, igual à de Configurações), um texto de
+     apoio e a grade de cards em 2 colunas (igual à de Resultado de pesquisas).
+     fitsSystemWindows="true": evita que o conteúdo fique por baixo da barra de status -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/gh_fundo"
+    android:fitsSystemWindows="true"
+    android:orientation="vertical">
+
+    <!-- ===== BARRA SUPERIOR: botão voltar + título + ícone da logo ===== -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="16dp">
+
+        <ImageView
+            android:id="@+id/btnVoltar"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/bg_botao_voltar"
+            android:contentDescription="@string/desc_voltar"
+            android:scaleType="center"
+            android:src="@drawable/ic_voltar" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_weight="1"
+            android:text="@string/menu_favoritos"
+            android:textColor="@color/gh_texto_primario"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginStart="12dp"
+            android:contentDescription="@string/desc_logo"
+            android:scaleType="fitCenter"
+            android:src="@drawable/logo_gamehunter_icone" />
+    </LinearLayout>
+
+    <!-- Texto de apoio abaixo da barra (visível só quando há favoritos) -->
+    <TextView
+        android:id="@+id/txtSubtitulo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="16dp"
+        android:paddingTop="8dp"
+        android:text="@string/favoritos_subtitulo"
+        android:textColor="@color/gh_texto_secundario"
+        android:textSize="14sp"
+        android:visibility="gone" />
+
+    <!-- ===== CONTEÚDO =====
+         FrameLayout empilha a grade, o indicador de carregamento e o estado vazio
+         (só um aparece por vez). A grade usa os mesmos espaçamentos da tela de Resultado
+         de pesquisas: paddingEnd de 4dp + margem de 12dp à direita de cada card = 16dp -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvFavoritos"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:paddingStart="16dp"
+            android:paddingTop="16dp"
+            android:paddingEnd="4dp"
+            android:paddingBottom="32dp"
+            android:visibility="gone" />
+
+        <!-- Carregamento: círculo girando na cor laranja da marca -->
+        <ProgressBar
+            android:id="@+id/progressoFavoritos"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center"
+            android:indeterminateTint="@color/gh_laranja" />
+
+        <!-- Estado vazio: estrela em contorno (acinzentada pelo tint) + mensagem -->
+        <LinearLayout
+            android:id="@+id/estadoVazio"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:padding="32dp"
+            android:visibility="gone">
+
+            <ImageView
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:contentDescription="@null"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_estrela_vazia"
+                app:tint="@color/gh_texto_apagado" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:gravity="center"
+                android:lineSpacingExtra="2dp"
+                android:text="@string/favoritos_vazio"
+                android:textColor="@color/gh_texto_secundario"
+                android:textSize="14sp" />
+        </LinearLayout>
+    </FrameLayout>
+</LinearLayout>

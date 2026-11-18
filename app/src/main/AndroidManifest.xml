@@ -70,6 +70,11 @@
             android:name=".ConfiguracoesActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
+
+        <!-- Tela de Favoritos (aberta pelo menu de perfil): jogos favoritados pelo usuário -->
+        <activity
+            android:name=".FavoritosActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

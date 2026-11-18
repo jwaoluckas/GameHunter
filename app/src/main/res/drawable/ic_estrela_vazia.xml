@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Estrela VAZIA (só o contorno branco) do botão de favoritar no modal do jogo: indica
+     que o jogo ainda não está nos favoritos. Também é usada, maior e acinzentada (tint),
+     no estado vazio da tela Favoritos.
+     Vector Drawable convertido do SVG "Estrela vazia" do Figma do projeto -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="18dp"
+    android:height="18dp"
+    android:viewportWidth="18"
+    android:viewportHeight="18">
+
+    <path
+        android:pathData="M9 1.5L11.3175 6.195L16.5 6.9525L12.75 10.605L13.635 15.765L9 13.3275L4.365 15.765L5.25 10.605L1.5 6.9525L6.6825 6.195L9 1.5Z"
+        android:strokeWidth="1.5"
+        android:strokeColor="@color/gh_texto_primario"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+</vector>
