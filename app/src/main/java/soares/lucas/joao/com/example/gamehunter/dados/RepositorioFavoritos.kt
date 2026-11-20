@@ -7,10 +7,13 @@ import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
+import kotlinx.coroutines.suspendCancellableCoroutine
 import soares.lucas.joao.com.example.gamehunter.modelo.Jogo
 import soares.lucas.joao.com.example.gamehunter.modelo.Loja
 import soares.lucas.joao.com.example.gamehunter.modelo.Oferta
 import soares.lucas.joao.com.example.gamehunter.modelo.Plataforma
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 
 // FAVORITOS do usuário logado, salvos no Cloud Firestore (o mesmo banco usado pelo
 // perfil). Cada usuário tem a sua subcoleção, ligada ao UID do Firebase Authentication:
@@ -92,6 +95,21 @@ class RepositorioFavoritos {
                     aoReceber(resultado.documents.mapNotNull { paraJogo(it) })
                 }
             }
+    }
+
+    internal suspend fun listarParaAlertas(): List<Jogo> {
+        val colecao = colecaoDoUsuario() ?: return emptyList()
+        return suspendCancellableCoroutine { continuacao ->
+            colecao.get()
+                .addOnSuccessListener { resultado ->
+                    if (continuacao.isActive) {
+                        continuacao.resume(resultado.documents.mapNotNull { paraJogo(it) })
+                    }
+                }
+                .addOnFailureListener { erro ->
+                    if (continuacao.isActive) continuacao.resumeWithException(erro)
+                }
+        }
     }
 
     // ===== CONVERSÃO Jogo <-> documento do Firestore =====

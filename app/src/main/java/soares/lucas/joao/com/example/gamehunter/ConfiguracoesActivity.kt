@@ -1,11 +1,15 @@
 package soares.lucas.joao.com.example.gamehunter
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
@@ -15,6 +19,7 @@ import soares.lucas.joao.com.example.gamehunter.componentes.GrupoDeChips
 import soares.lucas.joao.com.example.gamehunter.dados.PreferenciasUsuario
 import soares.lucas.joao.com.example.gamehunter.databinding.ActivityConfiguracoesBinding
 import soares.lucas.joao.com.example.gamehunter.modelo.Moeda
+import soares.lucas.joao.com.example.gamehunter.notificacoes.AgendadorAlertasPromocao
 
 // Tela de CONFIGURAÇÕES, aberta pelo menu de perfil. Permite alterar a foto, os
 // dados pessoais, a senha, a moeda padrão de comparação e os alertas de promoção.
@@ -32,6 +37,13 @@ class ConfiguracoesActivity : AppCompatActivity() {
     private val autenticacao by lazy { FirebaseAuth.getInstance() }
     private val banco by lazy { FirebaseFirestore.getInstance() }
     private val armazenamento by lazy { FirebaseStorage.getInstance() }
+    private val solicitarPermissaoNotificacoes =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { concedida ->
+            if (!concedida && ::binding.isInitialized) {
+                binding.swAlertasPromocao.isChecked = false
+                Toast.makeText(this, R.string.alerta_permissao_negada, Toast.LENGTH_SHORT).show()
+            }
+        }
 
     // Foto de perfil escolhida (opcional, por isso pode ser null)
     private var fotoSelecionada: Uri? = null
@@ -99,7 +111,19 @@ class ConfiguracoesActivity : AppCompatActivity() {
         }
 
         binding.edtDataNascimento.setOnClickListener { abrirCalendario(binding.edtDataNascimento) }
+        binding.swAlertasPromocao.setOnCheckedChangeListener { _, marcado ->
+            if (marcado) solicitarPermissaoParaAlertas()
+        }
         binding.btnSalvar.setOnClickListener { salvarAlteracoes() }
+    }
+
+    private fun solicitarPermissaoParaAlertas() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) !=
+            PackageManager.PERMISSION_GRANTED
+        ) {
+            solicitarPermissaoNotificacoes.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
     }
 
     // Valida os campos (nome, e-mail e data obrigatórios; a senha só é validada se o
@@ -124,6 +148,7 @@ class ConfiguracoesActivity : AppCompatActivity() {
             moedaPadrao = MOEDAS_PADRAO[grupoMoedaPadrao.selecionado()],
             alertasPromocao = binding.swAlertasPromocao.isChecked
         )
+        AgendadorAlertasPromocao.sincronizar(this)
 
         // TODO (Backend): sincronizar nome, e-mail, data e nova senha com a conta.
         val foto = fotoSelecionada
@@ -132,7 +157,6 @@ class ConfiguracoesActivity : AppCompatActivity() {
             return
         }
 
-        //  TODO (Notificações): usar alertasPromocao para avisar o usuário sobre promoções
         concluirSalvamento()
     }
 

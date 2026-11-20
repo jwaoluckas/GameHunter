@@ -224,7 +224,7 @@ Todas estão marcadas no código. Busquem por `TODO` no Android Studio (**View �
 | `PrincipalActivity.kt` | encerrar a sessão ao sair |
 | `modelo/Moeda.kt` | buscar cotações na API de câmbio |
 | `modelo/Loja.kt` | usar o link de redirecionamento da oferta (`dealID`) |
-| Favoritos (RF07/RF08), amizades (RF16), histórico de preços (RF15), paginação (RF06) | ainda não existem; precisam de funções novas no repositório |
+| Amizades (RF16), histórico de preços (RF15), paginação (RF06) | ainda não existem; precisam de funções novas no repositório |
 
 ### Frontend (depois que os dados reais existirem)
 | Arquivo | O que falta |
@@ -232,8 +232,11 @@ Todas estão marcadas no código. Busquem por `TODO` no Android Studio (**View �
 | `InicioFragment.kt`, `ResultadoPesquisaActivity.kt` | estados de loading, erro, vazio e "sem internet" (RF10) |
 | `adaptadores/JogoAdapter.kt`, `modais/ModalJogo.kt`, `modal_comparar_moedas.xml` | carregar a imagem da capa (`capaUrl`) |
 | `drawable/bg_selo_loja.xml` | usar o logo da loja vindo da API |
-| Telas novas | favoritos, amigos/perfil de amigo, gráfico de histórico de preços, atualizar manualmente (RF11) |
-| `ConfiguracoesActivity.kt` | usar a opção "alertas de promoção" para notificações |
+| Telas novas | amigos/perfil de amigo, gráfico de histórico de preços, atualizar manualmente (RF11) |
+
+Favoritos são salvos por usuário no Firestore. Quando os alertas estão ativos, o WorkManager
+consulta os preços a cada seis horas, com rede disponível, e mostra uma notificação local
+quando detecta que um favorito entrou em promoção.
 
 ---
 

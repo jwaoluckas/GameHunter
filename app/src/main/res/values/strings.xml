@@ -192,6 +192,11 @@
     <string name="config_alertas_promocao">Receber alertas de promoção</string>
     <string name="config_salvar">Salvar alterações</string>
     <string name="config_salvo">Alterações salvas!</string>
+    <string name="alerta_canal_nome">Promoções dos favoritos</string>
+    <string name="alerta_canal_descricao">Avisos quando um jogo favoritado entra em promoção.</string>
+    <string name="alerta_promocao_titulo">%1$s entrou em promoção!</string>
+    <string name="alerta_promocao_texto">Média atual: %1$s · %2$d%% de desconto</string>
+    <string name="alerta_permissao_negada">Permita notificações para receber alertas de promoção.</string>
     <string name="itad_ofertas">Mais vendidos</string>
     <string name="itad_descontos">Maiores descontos desta seleção</string>
     <string name="itad_fonte">Os queridinhos da comunidade</string>

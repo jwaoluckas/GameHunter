@@ -1,21 +1,29 @@
 package soares.lucas.joao.com.example.gamehunter
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.view.Gravity
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.google.firebase.auth.FirebaseAuth
 import soares.lucas.joao.com.example.gamehunter.dados.PreferenciasUsuario
 import soares.lucas.joao.com.example.gamehunter.databinding.ActivityPrincipalBinding
 import soares.lucas.joao.com.example.gamehunter.databinding.DialogMenuPerfilBinding
+import soares.lucas.joao.com.example.gamehunter.notificacoes.AgendadorAlertasPromocao
 
 // Tela PRINCIPAL, aberta depois do login. Mostra o header (logo + perfil) e hospeda
 // o InicioFragment, que tem o conteúdo da tela
 class PrincipalActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityPrincipalBinding
+    private val solicitarPermissaoNotificacoes =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { }
 
     // Cria a tela e coloca o InicioFragment no container com o supportFragmentManager.
     // O "if" evita adicionar o Fragment de novo quando a tela é recriada (ex.: girar o
@@ -33,6 +41,18 @@ class PrincipalActivity : AppCompatActivity() {
 
         binding.btnPerfil.setOnClickListener { mostrarMenuPerfil() }
         configurarBotaoVoltar()
+        prepararAlertasPromocao()
+    }
+
+    private fun prepararAlertasPromocao() {
+        AgendadorAlertasPromocao.sincronizar(this)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            PreferenciasUsuario(this).alertasPromocao &&
+            ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) !=
+            PackageManager.PERMISSION_GRANTED
+        ) {
+            solicitarPermissaoNotificacoes.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
     }
 
     // Menu do perfil (Configurações, Favoritos e Sair), feito com um AlertDialog usando o

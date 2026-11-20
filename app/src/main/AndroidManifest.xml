@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <!-- A partir do Android 11, o app precisa declarar quais tipos de Intent implícita
          ele vai consultar. Isto permite que resolveActivity() encontre um navegador
@@ -16,6 +17,7 @@
     </queries>
 
     <application
+        android:name=".GameHunterApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
