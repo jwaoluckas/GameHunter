@@ -20,7 +20,8 @@ data class Jogo(
     val precoEmDolar: Double,
     val ofertas: List<Oferta>,
     val idItad: String? = null,
-    val tags: Set<String> = emptySet()
+    val tags: Set<String> = emptySet(),
+    val tipoConteudo: TipoConteudo = TipoConteudo.JOGO
 ) {
 
     // Valores calculados a partir das ofertas:

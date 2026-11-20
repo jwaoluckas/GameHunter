@@ -11,6 +11,7 @@ import soares.lucas.joao.com.example.gamehunter.modelo.Filtros
 import soares.lucas.joao.com.example.gamehunter.modelo.Loja
 import soares.lucas.joao.com.example.gamehunter.modelo.Ordenacao
 import soares.lucas.joao.com.example.gamehunter.modelo.Genero
+import soares.lucas.joao.com.example.gamehunter.modelo.SelecaoConteudo
 
 // Modal de FILTROS E ORDENAÇÃO (RF05), usado na tela Principal e no Resultado de
 // pesquisas. Abre com os filtros que já estão em uso e, ao tocar em "Aplicar filtros",
@@ -28,6 +29,12 @@ class ModalFiltros(
     // chip que liga e desliga (seleção múltipla com uma opção só).
     // Os textos dos preços máximos são "Até R$ 50", "Até R$ 100", "Até R$ 200" e
     // "Qualquer valor" (a última opção, que significa sem limite)
+    private val grupoTipoConteudo = GrupoDeChips(
+        binding.flowTipoConteudo,
+        SelecaoConteudo.entries.map { contexto.getString(it.texto) },
+        selecaoMultipla = false,
+        minimoUmSelecionado = true
+    )
     private val grupoOrdenacao = GrupoDeChips(
         binding.flowOrdenacao,
         Ordenacao.entries.map { contexto.getString(it.texto) },
@@ -77,6 +84,7 @@ class ModalFiltros(
     // Filtros -> chips: converte cada valor para a posição do chip correspondente.
     // Sem preço máximo (null), marca o último chip ("Qualquer valor")
     private fun mostrarFiltros(filtros: Filtros) {
+        grupoTipoConteudo.selecionar(filtros.selecaoConteudo.ordinal)
         grupoOrdenacao.selecionar(filtros.ordenacao.ordinal)
         grupoGeneros.selecionar(filtros.generos.map { it.ordinal })
         grupoLojas.selecionar(filtros.lojas.map { it.ordinal })
@@ -94,6 +102,7 @@ class ModalFiltros(
         val indicePreco = grupoPrecoMaximo.selecionado()
 
         return Filtros(
+            selecaoConteudo = SelecaoConteudo.entries[grupoTipoConteudo.selecionado()],
             ordenacao = Ordenacao.entries[grupoOrdenacao.selecionado()],
             generos = grupoGeneros.selecionados().map { Genero.entries[it] }.toSet(),
             lojas = grupoLojas.selecionados().map { Loja.entries[it] }.toSet(),

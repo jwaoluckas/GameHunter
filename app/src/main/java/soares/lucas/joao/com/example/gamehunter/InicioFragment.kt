@@ -22,6 +22,7 @@ import soares.lucas.joao.com.example.gamehunter.modais.ModalJogo
 import soares.lucas.joao.com.example.gamehunter.modelo.Fileira
 import soares.lucas.joao.com.example.gamehunter.modelo.Filtros
 import soares.lucas.joao.com.example.gamehunter.modelo.Genero
+import soares.lucas.joao.com.example.gamehunter.modelo.Ordenacao
 
 // Conteúdo da tela Principal: busca, chips de gênero e fileiras de jogos.
 // É exibido dentro da PrincipalActivity
@@ -149,7 +150,9 @@ class InicioFragment : Fragment() {
             binding.txtNenhumJogo.setText(R.string.itad_carregando)
             binding.txtNenhumJogo.visibility = View.VISIBLE
             try {
-                todasAsFileiras = Repositorios.jogos(requireContext()).fileiras(generos)
+                todasAsFileiras = Repositorios.jogos(requireContext()).fileiras(
+                    generos, filtros.ordenacao, filtros.selecaoConteudo
+                )
                 atualizarFileiras()
             } catch (erro: Exception) {
                 if (erro is CancellationException) throw erro
@@ -160,9 +163,15 @@ class InicioFragment : Fragment() {
     }
 
     private fun abrirFileiraCompleta(fileira: Fileira) {
+        val ordenacaoInicial = if (
+            fileira.titulo == getString(R.string.itad_descontos) &&
+            filtros.ordenacao == Ordenacao.RELEVANCIA
+        ) Ordenacao.MENOR_PRECO else filtros.ordenacao
         val intent = Intent(requireContext(), ResultadoPesquisaActivity::class.java)
         intent.putExtra(ResultadoPesquisaActivity.EXTRA_FILEIRA, fileira.titulo)
         intent.putExtra(ResultadoPesquisaActivity.EXTRA_GENEROS, filtros.generos.map { it.name }.toTypedArray())
+        intent.putExtra(ResultadoPesquisaActivity.EXTRA_ORDENACAO, ordenacaoInicial.name)
+        intent.putExtra(ResultadoPesquisaActivity.EXTRA_CONTEUDO, filtros.selecaoConteudo.name)
         startActivity(intent)
     }
 

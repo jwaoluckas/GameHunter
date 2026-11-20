@@ -6,6 +6,7 @@ import soares.lucas.joao.com.example.gamehunter.modelo.Jogo
 import soares.lucas.joao.com.example.gamehunter.modelo.Loja
 import soares.lucas.joao.com.example.gamehunter.modelo.Oferta
 import soares.lucas.joao.com.example.gamehunter.modelo.Plataforma
+import soares.lucas.joao.com.example.gamehunter.modelo.TipoConteudo
 
 internal fun JSONArray.objetos(): List<JSONObject> = (0 until length()).map { getJSONObject(it) }
 private fun JSONObject.texto(chave: String): String = if (isNull(chave)) "" else optString(chave)
@@ -41,7 +42,12 @@ internal object MapeadorItad {
             precoEmDolar = Double.NaN,
             ofertas = ofertas,
             tags = if (tags == null) emptySet() else (0 until tags.length())
-                .map { tags.optString(it) }.filter { it.isNotBlank() }.toSet()
+                .map { tags.optString(it) }.filter { it.isNotBlank() }.toSet(),
+            tipoConteudo = when (base.texto("type").lowercase()) {
+                "dlc", "2" -> TipoConteudo.DLC
+                "game", "1", "" -> TipoConteudo.JOGO
+                else -> TipoConteudo.OUTRO
+            }
         )
     }
 

@@ -4,6 +4,7 @@ package soares.lucas.joao.com.example.gamehunter.modelo
 // plataformas/lojas" e precoMaximo null significa "qualquer valor".
 // Os valores padrão representam "nenhum filtro"
 data class Filtros(
+    val selecaoConteudo: SelecaoConteudo = SelecaoConteudo.JOGOS,
     val ordenacao: Ordenacao = Ordenacao.RELEVANCIA,
     val generos: Set<Genero> = emptySet(),
     val lojas: Set<Loja> = emptySet(),
@@ -20,11 +21,12 @@ data class Filtros(
     // Em "Relevância" a ordem original da lista é mantida
     fun aplicar(jogos: List<Jogo>): List<Jogo> {
         val filtrados = jogos.filter { jogo ->
+            val conteudoOk = selecaoConteudo.aceita(jogo.tipoConteudo)
             val generoOk = generos.isEmpty() || generos.any { it.corresponde(jogo.tags) }
             val lojaOk = lojas.isEmpty() || jogo.ofertas.any { it.loja in lojas }
             val precoOk = precoMaximo == null || jogo.precoMedioHoje <= precoMaximo
             val promocaoOk = !somentePromocao || jogo.emPromocao
-            generoOk && lojaOk && precoOk && promocaoOk
+            conteudoOk && generoOk && lojaOk && precoOk && promocaoOk
         }
 
         return when (ordenacao) {

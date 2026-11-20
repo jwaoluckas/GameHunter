@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
@@ -21,6 +22,7 @@ import soares.lucas.joao.com.example.gamehunter.modelo.Filtros
 import soares.lucas.joao.com.example.gamehunter.modelo.Jogo
 import soares.lucas.joao.com.example.gamehunter.modelo.Ordenacao
 import soares.lucas.joao.com.example.gamehunter.modelo.Genero
+import soares.lucas.joao.com.example.gamehunter.modelo.SelecaoConteudo
 
 // Tela de RESULTADO DE PESQUISAS (RF02). Pode ser aberta de dois jeitos:
 // - pela busca da tela Principal: recebe o texto digitado em EXTRA_BUSCA
@@ -35,12 +37,16 @@ class ResultadoPesquisaActivity : AppCompatActivity() {
         const val EXTRA_BUSCA = "extra_busca"
         const val EXTRA_FILEIRA = "extra_fileira"
         const val EXTRA_GENEROS = "extra_generos"
+        const val EXTRA_ORDENACAO = "extra_ordenacao"
+        const val EXTRA_CONTEUDO = "extra_conteudo"
 
         private const val CHIP_TODAS = 0
         private const val CHIP_EM_PROMOCAO = 1
         private const val PRIMEIRO_GENERO = 2
         private val CHIP_MENOR_PRECO = PRIMEIRO_GENERO + Genero.entries.size
         private const val COLUNAS = 2
+        private const val TAMANHO_PAGINA = 20
+        private const val ITENS_ANTES_DO_FIM = 4
     }
 
     private lateinit var binding: ActivityResultadoPesquisaBinding
@@ -56,6 +62,10 @@ class ResultadoPesquisaActivity : AppCompatActivity() {
     private var buscaEmAndamento: Job? = null
     private lateinit var chipsGeneros: ChipAdapter
     private var tituloDaFileira: String? = null
+    private var proximoOffset = 0
+    private var temMaisPaginas = false
+    private var carregandoPagina = false
+    private var versaoConsulta = 0
 
     // Cria a tela, carrega os jogos de acordo com o extra recebido e configura
     // a busca, os chips e a grade
@@ -64,8 +74,16 @@ class ResultadoPesquisaActivity : AppCompatActivity() {
         binding = ActivityResultadoPesquisaBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        filtros = filtros.copy(generos = intent.getStringArrayExtra(EXTRA_GENEROS).orEmpty()
-            .mapNotNull { nome -> Genero.entries.find { it.name == nome } }.toSet())
+        filtros = filtros.copy(
+            selecaoConteudo = intent.getStringExtra(EXTRA_CONTEUDO)
+                ?.let { nome -> SelecaoConteudo.entries.find { it.name == nome } }
+                ?: SelecaoConteudo.JOGOS,
+            generos = intent.getStringArrayExtra(EXTRA_GENEROS).orEmpty()
+                .mapNotNull { nome -> Genero.entries.find { it.name == nome } }.toSet(),
+            ordenacao = intent.getStringExtra(EXTRA_ORDENACAO)
+                ?.let { nome -> Ordenacao.entries.find { it.name == nome } }
+                ?: Ordenacao.RELEVANCIA
+        )
         configurarBusca()
         configurarChipsRapidos()
         configurarGrade()
@@ -144,9 +162,8 @@ class ResultadoPesquisaActivity : AppCompatActivity() {
 
     private fun recarregarFileiraOuFiltrar() {
         val titulo = tituloDaFileira
-        val generos = filtros.generos
         if (titulo == null) atualizarResultados()
-        else carregarResultados { Repositorios.jogos(this).jogosDaFileira(titulo, generos) }
+        else reiniciarPaginacao()
     }
 
     // Grade de 2 colunas (GridLayoutManager) usando o mesmo card da tela Principal.
@@ -160,6 +177,16 @@ class ResultadoPesquisaActivity : AppCompatActivity() {
         )
         binding.rvResultados.layoutManager = GridLayoutManager(this, COLUNAS)
         binding.rvResultados.adapter = jogoAdapter
+        binding.rvResultados.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                if (dy <= 0) return
+                val grade = recyclerView.layoutManager as GridLayoutManager
+                val ultimoVisivel = grade.findLastVisibleItemPosition()
+                if (ultimoVisivel >= jogoAdapter.itemCount - ITENS_ANTES_DO_FIM) {
+                    carregarProximaPagina()
+                }
+            }
+        })
     }
 
     // Busca os jogos pelo título no repositório, dentro de uma corrotina ligada ao
@@ -173,6 +200,9 @@ class ResultadoPesquisaActivity : AppCompatActivity() {
     // Cancela a busca anterior para não sobrescrever uma consulta mais recente.
     private fun carregarResultados(consulta: suspend () -> List<Jogo>) {
         buscaEmAndamento?.cancel()
+        versaoConsulta++
+        temMaisPaginas = false
+        carregandoPagina = false
         buscaEmAndamento = lifecycleScope.launch {
             jogosEncontrados = emptyList()
             atualizarResultados()
@@ -185,6 +215,68 @@ class ResultadoPesquisaActivity : AppCompatActivity() {
                 if (erro is CancellationException) throw erro
                 binding.txtNenhumResultado.setText(mensagemErroItad(erro))
                 binding.txtNenhumResultado.visibility = View.VISIBLE
+            }
+        }
+    }
+
+    private fun reiniciarPaginacao() {
+        buscaEmAndamento?.cancel()
+        versaoConsulta++
+        proximoOffset = 0
+        temMaisPaginas = true
+        carregandoPagina = false
+        jogosEncontrados = emptyList()
+        atualizarResultados()
+        binding.txtNenhumResultado.setText(R.string.itad_carregando)
+        binding.txtNenhumResultado.visibility = View.VISIBLE
+        carregarProximaPagina()
+    }
+
+    private fun carregarProximaPagina() {
+        val titulo = tituloDaFileira ?: return
+        if (carregandoPagina || !temMaisPaginas) return
+        val filtrosEmUso = filtrosComChipRapido()
+        val offsetDaPagina = proximoOffset
+        val versao = versaoConsulta
+        carregandoPagina = true
+        buscaEmAndamento = lifecycleScope.launch {
+            var carregou = false
+            try {
+                val pagina = Repositorios.jogos(this@ResultadoPesquisaActivity).paginaDaFileira(
+                    titulo,
+                    filtrosEmUso.generos,
+                    filtrosEmUso.ordenacao,
+                    filtrosEmUso.selecaoConteudo,
+                    offsetDaPagina,
+                    TAMANHO_PAGINA
+                )
+                if (versao != versaoConsulta) return@launch
+                jogosEncontrados = (jogosEncontrados + pagina.jogos)
+                    .distinctBy { it.idItad ?: it.id.toString() }
+                proximoOffset += TAMANHO_PAGINA
+                temMaisPaginas = pagina.temMais
+                carregou = true
+                atualizarResultados()
+            } catch (erro: Exception) {
+                if (erro is CancellationException) throw erro
+                if (versao == versaoConsulta) {
+                    binding.txtNenhumResultado.setText(mensagemErroItad(erro))
+                    binding.txtNenhumResultado.visibility = View.VISIBLE
+                }
+            } finally {
+                if (versao == versaoConsulta) {
+                    carregandoPagina = false
+                    if (carregou) carregarMaisSeAListaNaoPreencheATela()
+                }
+            }
+        }
+    }
+
+    private fun carregarMaisSeAListaNaoPreencheATela() {
+        binding.rvResultados.post {
+            if (temMaisPaginas && !carregandoPagina &&
+                (jogoAdapter.itemCount == 0 || !binding.rvResultados.canScrollVertically(1))) {
+                carregarProximaPagina()
             }
         }
     }

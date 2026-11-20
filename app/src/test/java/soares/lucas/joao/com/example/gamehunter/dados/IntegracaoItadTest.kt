@@ -10,6 +10,9 @@ import soares.lucas.joao.com.example.gamehunter.modelo.Loja
 import soares.lucas.joao.com.example.gamehunter.modelo.Plataforma
 import soares.lucas.joao.com.example.gamehunter.modelo.Genero
 import soares.lucas.joao.com.example.gamehunter.modelo.Filtros
+import soares.lucas.joao.com.example.gamehunter.modelo.Ordenacao
+import soares.lucas.joao.com.example.gamehunter.modelo.SelecaoConteudo
+import soares.lucas.joao.com.example.gamehunter.modelo.TipoConteudo
 import java.net.URLDecoder
 
 class IntegracaoItadTest {
@@ -40,7 +43,124 @@ class IntegracaoItadTest {
         assertEquals(listOf(jogo), Filtros().aplicar(listOf(jogo)))
     }
 
-    @Test fun enviaGenerosNaApiEPreservaSelecaoNoVerTudoSemMisturarCache() = runBlocking {
+    @Test fun filtroDeConteudoDiferenciaJogosEDlcs() {
+        val jogo = MapeadorItad.jogo(base().put("type", "game"), JSONObject(), null)
+        val dlc = MapeadorItad.jogo(
+            JSONObject(base().toString()).put("id", "dlc-id").put("type", "dlc"),
+            JSONObject(),
+            null
+        )
+        assertEquals(TipoConteudo.JOGO, jogo.tipoConteudo)
+        assertEquals(TipoConteudo.DLC, dlc.tipoConteudo)
+        assertEquals(listOf(jogo), Filtros().aplicar(listOf(jogo, dlc)))
+        assertEquals(listOf(dlc), Filtros(selecaoConteudo = SelecaoConteudo.DLC).aplicar(listOf(jogo, dlc)))
+        assertEquals(
+            listOf(jogo, dlc),
+            Filtros(selecaoConteudo = SelecaoConteudo.TODOS).aplicar(listOf(jogo, dlc))
+        )
+    }
+
+    @Test fun usaRankingPopularPreservaRelevanciaEExcluiDlc() = runBlocking {
+        val consultas = mutableListOf<String>()
+        val consultasDePreco = mutableListOf<String>()
+        val segundoId = "118d937f-07fc-72ed-8517-d8e24cb1eb22"
+        val segundo = JSONObject(base().toString()).put("id", segundoId).put("title", "Segundo jogo")
+        val dlc = JSONObject(base().toString()).put("id", "218d937f-07fc-72ed-8517-d8e24cb1eb22")
+            .put("title", "Conteudo adicional").put("type", "dlc")
+        val repositorio = RepositorioItad({ caminho, _ ->
+            when {
+                caminho.startsWith("/stats/most-popular/") -> {
+                    consultas += caminho
+                    JSONArray()
+                        .put(base().put("type", "game"))
+                        .put(segundo.put("type", "game"))
+                        .put(dlc)
+                        .toString()
+                }
+                caminho.startsWith("/deals/") -> {
+                    consultasDePreco += caminho
+                    JSONObject().put("list", JSONArray().put(base().put("type", "game"))).toString()
+                }
+                caminho.startsWith("/games/prices/") -> JSONArray()
+                    .put(precos(oferta()))
+                    .put(JSONObject().put("id", segundoId).put("deals", JSONArray()))
+                    .toString()
+                else -> "{}"
+            }
+        }, "Ofertas", "Descontos", "Fonte")
+        val fileiras = repositorio.fileiras()
+        assertEquals(listOf("Jogo de teste", "Segundo jogo"), fileiras.first().jogos.map { it.titulo })
+        assertEquals(fileiras.first().jogos, repositorio.jogosDaFileira("Ofertas"))
+        assertEquals(1, consultas.size)
+        assertEquals("/stats/most-popular/v1?offset=0&limit=20", consultas.single())
+        assertTrue(consultasDePreco.single().contains("sort=price"))
+    }
+
+    @Test fun paginaPopularUsaOffsetEInformaQuandoPodeHaverMaisJogos() = runBlocking {
+        val primeiroId = id
+        val segundoId = "118d937f-07fc-72ed-8517-d8e24cb1eb22"
+        val consultas = mutableListOf<String>()
+        val repositorio = RepositorioItad({ caminho, _ ->
+            when {
+                caminho.startsWith("/stats/most-popular/") -> {
+                    consultas += caminho
+                    JSONArray()
+                        .put(base().put("type", "game"))
+                        .put(JSONObject(base().toString()).put("id", segundoId).put("type", "game"))
+                        .toString()
+                }
+                caminho.startsWith("/games/prices/") -> JSONArray()
+                    .put(JSONObject().put("id", primeiroId).put("deals", JSONArray()))
+                    .put(JSONObject().put("id", segundoId).put("deals", JSONArray()))
+                    .toString()
+                else -> "{}"
+            }
+        }, "Ofertas", "Descontos", "Fonte")
+
+        val pagina = repositorio.paginaDaFileira(
+            "Ofertas", emptySet(), Ordenacao.RELEVANCIA, offset = 20, limite = 2
+        )
+
+        assertEquals(2, pagina.jogos.size)
+        assertTrue(pagina.temMais)
+        assertEquals("/stats/most-popular/v1?offset=20&limit=2", consultas.single())
+    }
+
+    @Test fun homeMantemDestaquesQuandoGeneroNaoEstaNaPrimeiraPaginaPopular() = runBlocking {
+        val estrategiaId = "318d937f-07fc-72ed-8517-d8e24cb1eb22"
+        val estrategia = JSONObject(base().toString())
+            .put("id", estrategiaId)
+            .put("title", "Jogo de estrategia")
+            .put("type", "game")
+        val consultasDeOfertas = mutableListOf<String>()
+        val repositorio = RepositorioItad({ caminho, corpo ->
+            when {
+                caminho.startsWith("/stats/most-popular/") -> JSONArray()
+                    .put(base().put("type", "game")).toString()
+                caminho.startsWith("/deals/") -> {
+                    consultasDeOfertas += caminho
+                    JSONObject().put("list", JSONArray().put(estrategia)).toString()
+                }
+                caminho.startsWith("/games/prices/") -> {
+                    val ids = JSONArray(corpo)
+                    JSONArray((0 until ids.length()).map { indice ->
+                        JSONObject().put("id", ids.getString(indice)).put("deals", JSONArray())
+                    }).toString()
+                }
+                caminho.contains(estrategiaId) -> JSONObject().put("tags", JSONArray().put("Strategy")).toString()
+                else -> "{}"
+            }
+        }, "Ofertas", "Descontos", "Fonte")
+
+        val fileiras = repositorio.fileiras(setOf(Genero.ESTRATEGIA))
+
+        assertEquals(2, fileiras.size)
+        assertEquals("Jogo de estrategia", fileiras.first().jogos.single().titulo)
+        assertTrue(consultasDeOfertas.any { !it.contains("sort=") })
+        assertTrue(consultasDeOfertas.any { it.contains("sort=price") })
+    }
+
+    @Test fun maiorDescontoConsultaOutrosJogosComFiltroDeTipoEGenero() = runBlocking {
         val consultas = mutableListOf<String>()
         val repositorio = RepositorioItad({ caminho, _ ->
             when {
@@ -52,17 +172,36 @@ class IntegracaoItadTest {
                 else -> "{}"
             }
         }, "Ofertas", "Descontos", "Fonte")
-        val generos = setOf(Genero.AVENTURA, Genero.ACAO)
-        val fileiras = repositorio.fileiras(generos)
-        assertEquals(fileiras.first().jogos, repositorio.jogosDaFileira("Ofertas", generos))
+
+        repositorio.fileiras(setOf(Genero.ACAO), Ordenacao.MAIOR_DESCONTO)
+
         assertEquals(1, consultas.size)
-        val filtro = JSONObject(URLDecoder.decode(consultas.first().substringAfter("&filter="), "UTF-8"))
-        assertEquals(listOf("Action", "Adventure"), (0..1).map { filtro.getJSONArray("tagsUnion").getString(it) })
-        repositorio.fileiras()
-        assertEquals(2, consultas.size)
-        assertFalse(consultas.last().contains("filter="))
-        repositorio.fileiras(setOf(Genero.ACAO, Genero.AVENTURA))
-        assertEquals(2, consultas.size)
+        assertTrue(consultas.single().contains("sort=-cut"))
+        val filtro = JSONObject(URLDecoder.decode(consultas.single().substringAfter("&filter="), "UTF-8"))
+        assertEquals(1, filtro.getJSONArray("type").getInt(0))
+        assertEquals("Action", filtro.getJSONArray("tagsUnion").getString(0))
+    }
+
+    @Test fun selecaoDlcUsaListaDeOfertasComTipoDois() = runBlocking {
+        var caminhoDaLista = ""
+        val repositorio = RepositorioItad({ caminho, _ ->
+            when {
+                caminho.startsWith("/deals/") -> {
+                    caminhoDaLista = caminho
+                    JSONObject().put("list", JSONArray().put(base().put("type", "dlc"))).toString()
+                }
+                caminho.startsWith("/games/prices/") -> JSONArray().put(precos(oferta())).toString()
+                else -> "{}"
+            }
+        }, "Ofertas", "Descontos", "Fonte")
+
+        repositorio.fileiras(emptySet(), Ordenacao.RELEVANCIA, SelecaoConteudo.DLC)
+
+        assertTrue(caminhoDaLista.startsWith("/deals/"))
+        val filtro = JSONObject(URLDecoder.decode(caminhoDaLista.substringAfter("&filter="), "UTF-8"))
+        assertEquals(listOf(2), (0 until filtro.getJSONArray("type").length()).map {
+            filtro.getJSONArray("type").getInt(it)
+        })
     }
 
     @Test fun usaPrecoRegularComoOriginalEMantemMediaDasOfertas() {
@@ -130,14 +269,17 @@ class IntegracaoItadTest {
         val repositorio = RepositorioItad({ caminho, _ ->
             chamadas++
             when {
-                caminho.startsWith("/deals/") -> JSONObject().put("list", JSONArray().put(base())).toString()
+                caminho.startsWith("/stats/most-popular/") -> JSONArray()
+                    .put(base().put("type", "game")).toString()
+                caminho.startsWith("/deals/") -> JSONObject()
+                    .put("list", JSONArray().put(base().put("type", "game"))).toString()
                 caminho.startsWith("/games/prices/") -> JSONArray().put(precos(oferta())).toString()
                 else -> "{}"
             }
         }, "Ofertas", "Descontos", "Fonte")
         val fileiras = repositorio.fileiras()
         assertEquals(fileiras.first().jogos, repositorio.jogosDaFileira("Ofertas"))
-        assertEquals(3, chamadas)
+        assertEquals(6, chamadas)
     }
 
     @Test fun falhaDeRedeNaoViraCatalogoFicticioNemEntraNoCache() = runBlocking {

@@ -12,6 +12,7 @@ import soares.lucas.joao.com.example.gamehunter.modelo.Jogo
 import soares.lucas.joao.com.example.gamehunter.modelo.Loja
 import soares.lucas.joao.com.example.gamehunter.modelo.Oferta
 import soares.lucas.joao.com.example.gamehunter.modelo.Plataforma
+import soares.lucas.joao.com.example.gamehunter.modelo.TipoConteudo
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
@@ -120,6 +121,7 @@ class RepositorioFavoritos {
     private fun paraDocumento(jogo: Jogo): Map<String, Any?> = mapOf(
         "id" to jogo.id,
         "idItad" to jogo.idItad,
+        "tipoConteudo" to jogo.tipoConteudo.name,
         "titulo" to jogo.titulo,
         "capaUrl" to jogo.capaUrl,
         "nota" to numeroOuNulo(jogo.nota),
@@ -177,7 +179,10 @@ class RepositorioFavoritos {
             precoEmDolar = numeroOuNaN(documento.get("precoEmDolar")),
             ofertas = ofertas,
             idItad = documento.getString("idItad"),
-            tags = textos(documento.get("tags")).toSet()
+            tags = textos(documento.get("tags")).toSet(),
+            tipoConteudo = documento.getString("tipoConteudo")
+                ?.let { nome -> TipoConteudo.entries.find { it.name == nome } }
+                ?: TipoConteudo.JOGO
         )
     }
 

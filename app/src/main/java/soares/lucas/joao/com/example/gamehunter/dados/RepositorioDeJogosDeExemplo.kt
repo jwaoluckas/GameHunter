@@ -5,7 +5,9 @@ import soares.lucas.joao.com.example.gamehunter.modelo.Fileira
 import soares.lucas.joao.com.example.gamehunter.modelo.Jogo
 import soares.lucas.joao.com.example.gamehunter.modelo.Loja
 import soares.lucas.joao.com.example.gamehunter.modelo.Oferta
+import soares.lucas.joao.com.example.gamehunter.modelo.Ordenacao
 import soares.lucas.joao.com.example.gamehunter.modelo.Plataforma
+import soares.lucas.joao.com.example.gamehunter.modelo.SelecaoConteudo
 
 // Implementação PROVISÓRIA do RepositorioDeJogos, com dados apenas DEMONSTRATIVOS
 // (os mesmos do protótipo no Figma), para as telas funcionarem antes da integração
@@ -184,7 +186,11 @@ object RepositorioDeJogosDeExemplo : RepositorioDeJogos {
     // - fileiras: montadas a partir dos ids dos jogos do catálogo
     // - buscarPorTitulo: jogos cujo nome contém o texto, sem diferenciar maiúsculas
     // - jogosDaFileira: os jogos da fileira com aquele título (lista vazia se não existir)
-    override suspend fun fileiras(generos: Set<Genero>): List<Fileira> {
+    override suspend fun fileiras(
+        generos: Set<Genero>,
+        ordenacao: Ordenacao,
+        selecaoConteudo: SelecaoConteudo
+    ): List<Fileira> {
         return listOf(
             Fileira(
                 titulo = "Mais vendidos",
@@ -203,8 +209,14 @@ object RepositorioDeJogosDeExemplo : RepositorioDeJogos {
         return jogos.filter { it.titulo.contains(texto, ignoreCase = true) }
     }
 
-    override suspend fun jogosDaFileira(tituloDaFileira: String, generos: Set<Genero>): List<Jogo> {
-        return fileiras(generos).find { it.titulo == tituloDaFileira }?.jogos.orEmpty()
+    override suspend fun jogosDaFileira(
+        tituloDaFileira: String,
+        generos: Set<Genero>,
+        ordenacao: Ordenacao,
+        selecaoConteudo: SelecaoConteudo
+    ): List<Jogo> {
+        return fileiras(generos, ordenacao, selecaoConteudo)
+            .find { it.titulo == tituloDaFileira }?.jogos.orEmpty()
     }
 
     // Funções auxiliares para montar os dados acima com menos repetição:

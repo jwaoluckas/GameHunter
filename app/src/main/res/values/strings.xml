@@ -122,6 +122,10 @@
     <!-- Modal de filtros -->
     <string name="filtros_titulo">Filtros</string>
     <string name="filtros_subtitulo">Refine e ordene os resultados</string>
+    <string name="filtros_selecionar">Selecionar</string>
+    <string name="filtros_jogos">Jogos</string>
+    <string name="filtros_dlc">DLC</string>
+    <string name="filtros_todos_conteudos">Todos</string>
     <string name="filtros_ordenar_por">Ordenar por</string>
     <string name="filtros_plataformas">Plataformas</string>
     <string name="filtros_lojas">Lojas</string>
