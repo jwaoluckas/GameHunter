@@ -66,6 +66,9 @@ internal object MapeadorItad {
             61 -> Loja.STEAM
             16 -> Loja.EPIC_GAMES
             50 -> Loja.NUUVEM
+            48 -> Loja.MICROSOFT_STORE
+            35 -> Loja.GOG
+            37 -> Loja.HUMBLE_STORE
             else -> null // Preserva o nome de lojas fora das opções fixas dos filtros.
         }
         val regular = json.optJSONObject("regular")

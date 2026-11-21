@@ -3,6 +3,7 @@ package soares.lucas.joao.com.example.gamehunter.dados
 import soares.lucas.joao.com.example.gamehunter.modelo.Genero
 import soares.lucas.joao.com.example.gamehunter.modelo.Fileira
 import soares.lucas.joao.com.example.gamehunter.modelo.Jogo
+import soares.lucas.joao.com.example.gamehunter.modelo.Loja
 import soares.lucas.joao.com.example.gamehunter.modelo.Moeda
 import soares.lucas.joao.com.example.gamehunter.modelo.Ordenacao
 import soares.lucas.joao.com.example.gamehunter.modelo.SelecaoConteudo
@@ -26,7 +27,8 @@ interface RepositorioDeJogos {
     suspend fun fileiras(
         generos: Set<Genero> = emptySet(),
         ordenacao: Ordenacao = Ordenacao.RELEVANCIA,
-        selecaoConteudo: SelecaoConteudo = SelecaoConteudo.JOGOS
+        selecaoConteudo: SelecaoConteudo = SelecaoConteudo.JOGOS,
+        lojas: Set<Loja> = emptySet()
     ): List<Fileira>
 
     // Busca por título (RF02), usada pela tela Resultado de pesquisas.
@@ -39,7 +41,8 @@ interface RepositorioDeJogos {
         tituloDaFileira: String,
         generos: Set<Genero> = emptySet(),
         ordenacao: Ordenacao = Ordenacao.RELEVANCIA,
-        selecaoConteudo: SelecaoConteudo = SelecaoConteudo.JOGOS
+        selecaoConteudo: SelecaoConteudo = SelecaoConteudo.JOGOS,
+        lojas: Set<Loja> = emptySet()
     ): List<Jogo>
 
     // Página usada pela grade de "Ver tudo". A implementação de exemplo não precisa
@@ -49,10 +52,11 @@ interface RepositorioDeJogos {
         generos: Set<Genero> = emptySet(),
         ordenacao: Ordenacao = Ordenacao.RELEVANCIA,
         selecaoConteudo: SelecaoConteudo = SelecaoConteudo.JOGOS,
+        lojas: Set<Loja> = emptySet(),
         offset: Int = 0,
         limite: Int = 20
     ): PaginaDeJogos = PaginaDeJogos(
-        jogosDaFileira(tituloDaFileira, generos, ordenacao, selecaoConteudo),
+        jogosDaFileira(tituloDaFileira, generos, ordenacao, selecaoConteudo, lojas),
         temMais = false
     )
 }

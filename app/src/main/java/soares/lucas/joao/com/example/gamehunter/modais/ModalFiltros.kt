@@ -23,6 +23,7 @@ class ModalFiltros(
 ) {
 
     private val binding = ModalFiltrosBinding.inflate(LayoutInflater.from(contexto))
+    private val lojasDisponiveis = Loja.DISPONIVEIS_NO_ITAD
 
     // Um grupo de chips para cada seção do modal. Ordenação e preço máximo aceitam só
     // uma opção; gêneros e lojas aceitam várias. "Somente em promoção" é um único
@@ -47,7 +48,7 @@ class ModalFiltros(
     )
     private val grupoLojas = GrupoDeChips(
         binding.flowLojas,
-        Loja.entries.map { it.nome },
+        lojasDisponiveis.map { it.nome },
         selecaoMultipla = true
     )
     private val grupoPrecoMaximo = GrupoDeChips(
@@ -87,7 +88,7 @@ class ModalFiltros(
         grupoTipoConteudo.selecionar(filtros.selecaoConteudo.ordinal)
         grupoOrdenacao.selecionar(filtros.ordenacao.ordinal)
         grupoGeneros.selecionar(filtros.generos.map { it.ordinal })
-        grupoLojas.selecionar(filtros.lojas.map { it.ordinal })
+        grupoLojas.selecionar(filtros.lojas.mapNotNull { lojasDisponiveis.indexOf(it).takeIf { indice -> indice >= 0 } })
 
         val precoMaximo = filtros.precoMaximo
         val indicePreco = if (precoMaximo == null) -1 else Filtros.PRECOS_MAXIMOS.indexOf(precoMaximo)
@@ -105,7 +106,7 @@ class ModalFiltros(
             selecaoConteudo = SelecaoConteudo.entries[grupoTipoConteudo.selecionado()],
             ordenacao = Ordenacao.entries[grupoOrdenacao.selecionado()],
             generos = grupoGeneros.selecionados().map { Genero.entries[it] }.toSet(),
-            lojas = grupoLojas.selecionados().map { Loja.entries[it] }.toSet(),
+            lojas = grupoLojas.selecionados().map { lojasDisponiveis[it] }.toSet(),
             precoMaximo = Filtros.PRECOS_MAXIMOS.getOrNull(indicePreco),
             somentePromocao = grupoMostrar.selecionados().isNotEmpty()
         )

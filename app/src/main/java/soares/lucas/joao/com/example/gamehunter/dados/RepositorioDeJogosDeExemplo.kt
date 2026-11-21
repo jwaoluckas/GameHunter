@@ -189,7 +189,8 @@ object RepositorioDeJogosDeExemplo : RepositorioDeJogos {
     override suspend fun fileiras(
         generos: Set<Genero>,
         ordenacao: Ordenacao,
-        selecaoConteudo: SelecaoConteudo
+        selecaoConteudo: SelecaoConteudo,
+        lojas: Set<Loja>
     ): List<Fileira> {
         return listOf(
             Fileira(
@@ -213,9 +214,10 @@ object RepositorioDeJogosDeExemplo : RepositorioDeJogos {
         tituloDaFileira: String,
         generos: Set<Genero>,
         ordenacao: Ordenacao,
-        selecaoConteudo: SelecaoConteudo
+        selecaoConteudo: SelecaoConteudo,
+        lojas: Set<Loja>
     ): List<Jogo> {
-        return fileiras(generos, ordenacao, selecaoConteudo)
+        return fileiras(generos, ordenacao, selecaoConteudo, lojas)
             .find { it.titulo == tituloDaFileira }?.jogos.orEmpty()
     }
 

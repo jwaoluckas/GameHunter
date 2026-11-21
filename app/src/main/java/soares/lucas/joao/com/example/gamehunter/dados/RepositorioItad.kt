@@ -12,6 +12,7 @@ import org.json.JSONObject
 import soares.lucas.joao.com.example.gamehunter.modelo.Genero
 import soares.lucas.joao.com.example.gamehunter.modelo.Fileira
 import soares.lucas.joao.com.example.gamehunter.modelo.Jogo
+import soares.lucas.joao.com.example.gamehunter.modelo.Loja
 import soares.lucas.joao.com.example.gamehunter.modelo.Moeda
 import soares.lucas.joao.com.example.gamehunter.modelo.Ordenacao
 import soares.lucas.joao.com.example.gamehunter.modelo.SelecaoConteudo
@@ -44,14 +45,15 @@ internal class RepositorioItad(
     override suspend fun fileiras(
         generos: Set<Genero>,
         ordenacao: Ordenacao,
-        selecaoConteudo: SelecaoConteudo
+        selecaoConteudo: SelecaoConteudo,
+        lojas: Set<Loja>
     ): List<Fileira> {
-        val populares = carregarDestaquesDaHome(generos, ordenacao, selecaoConteudo)
+        val populares = carregarDestaquesDaHome(generos, ordenacao, selecaoConteudo, lojas)
         val ordenacaoSecundaria = if (ordenacao == Ordenacao.RELEVANCIA) {
             Ordenacao.MENOR_PRECO
         } else ordenacao
         val menoresPrecos = paginaDaFileira(
-            tituloDescontos, generos, ordenacaoSecundaria, selecaoConteudo, 0, 20
+            tituloDescontos, generos, ordenacaoSecundaria, selecaoConteudo, lojas, 0, 20
         ).jogos
         return listOfNotNull(
             Fileira(tituloOfertas, subtitulo, populares).takeIf { populares.isNotEmpty() },
@@ -62,12 +64,13 @@ internal class RepositorioItad(
     private suspend fun carregarDestaquesDaHome(
         generos: Set<Genero>,
         ordenacao: Ordenacao,
-        selecaoConteudo: SelecaoConteudo
+        selecaoConteudo: SelecaoConteudo,
+        lojas: Set<Loja>
     ): List<Jogo> {
         if (ordenacao != Ordenacao.RELEVANCIA ||
-            selecaoConteudo != SelecaoConteudo.JOGOS || generos.isEmpty()) {
+            selecaoConteudo != SelecaoConteudo.JOGOS || (generos.isEmpty() && lojas.isEmpty())) {
             return paginaDaFileira(
-                tituloOfertas, generos, ordenacao, selecaoConteudo, 0, TAMANHO_PAGINA_HOME
+                tituloOfertas, generos, ordenacao, selecaoConteudo, lojas, 0, TAMANHO_PAGINA_HOME
             ).jogos
         }
 
@@ -79,6 +82,7 @@ internal class RepositorioItad(
                 generos,
                 Ordenacao.RELEVANCIA,
                 SelecaoConteudo.JOGOS,
+                lojas,
                 offsetPagina,
                 TAMANHO_PAGINA_HOME
             )
@@ -102,6 +106,7 @@ internal class RepositorioItad(
                 generos,
                 Ordenacao.RELEVANCIA,
                 SelecaoConteudo.JOGOS,
+                lojas,
                 offset = 0,
                 limite = TAMANHO_PAGINA_HOME
             ),
@@ -119,9 +124,10 @@ internal class RepositorioItad(
         tituloDaFileira: String,
         generos: Set<Genero>,
         ordenacao: Ordenacao,
-        selecaoConteudo: SelecaoConteudo
+        selecaoConteudo: SelecaoConteudo,
+        lojas: Set<Loja>
     ): List<Jogo> = paginaDaFileira(
-        tituloDaFileira, generos, ordenacao, selecaoConteudo, 0, 20
+        tituloDaFileira, generos, ordenacao, selecaoConteudo, lojas, 0, 20
     ).jogos
 
     override suspend fun paginaDaFileira(
@@ -129,6 +135,7 @@ internal class RepositorioItad(
         generos: Set<Genero>,
         ordenacao: Ordenacao,
         selecaoConteudo: SelecaoConteudo,
+        lojas: Set<Loja>,
         offset: Int,
         limite: Int
     ): PaginaDeJogos {
@@ -147,12 +154,15 @@ internal class RepositorioItad(
             )
         } else {
             carregar(
-                caminhoOfertas(generos, ordenacao, selecaoConteudo, offsetSeguro, limiteSeguro),
+                caminhoOfertas(generos, ordenacao, selecaoConteudo, lojas, offsetSeguro, limiteSeguro),
                 listaOfertas = true
             )
         }
-        val filtrados = if (ordenacao != Ordenacao.RELEVANCIA || generos.isEmpty()) carregados else {
-            carregados.filter { jogo -> generos.any { it.corresponde(jogo.tags) } }
+        val filtradosPorGenero = if (ordenacao != Ordenacao.RELEVANCIA || generos.isEmpty()) {
+            carregados
+        } else carregados.filter { jogo -> generos.any { it.corresponde(jogo.tags) } }
+        val filtrados = if (lojas.isEmpty()) filtradosPorGenero else {
+            filtradosPorGenero.filter { jogo -> jogo.ofertas.any { it.loja in lojas } }
         }
         return PaginaDeJogos(filtrados, temMais = carregados.size == limiteSeguro)
     }
@@ -161,6 +171,7 @@ internal class RepositorioItad(
         generos: Set<Genero>,
         ordenacao: Ordenacao,
         selecaoConteudo: SelecaoConteudo,
+        lojas: Set<Loja>,
         offset: Int,
         limite: Int
     ): String {
@@ -174,7 +185,13 @@ internal class RepositorioItad(
             Ordenacao.MAIOR_DESCONTO -> "&sort=-cut"
             else -> ""
         }
-        return "/deals/v2?country=BR&offset=$offset&limit=$limite&nondeals=false$sort&filter=" +
+        val idsLojas = lojas.mapNotNull { it.idItad }.sorted()
+        val shops = if (idsLojas.isEmpty()) {
+            ""
+        } else {
+            "&shops=${idsLojas.joinToString(",")}"
+        }
+        return "/deals/v2?country=BR&offset=$offset&limit=$limite&nondeals=false$sort$shops&filter=" +
             URLEncoder.encode(filtro.toString(), "UTF-8")
     }
 

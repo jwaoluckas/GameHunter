@@ -233,6 +233,44 @@ class IntegracaoItadTest {
         assertEquals("Loja de teste", jogo.ofertas.single().nomeLoja)
     }
 
+    @Test fun mapeiaTodasAsLojasDisponiveisNoFiltro() {
+        val lojas = listOf(
+            61 to Loja.STEAM,
+            16 to Loja.EPIC_GAMES,
+            50 to Loja.NUUVEM,
+            48 to Loja.MICROSOFT_STORE,
+            35 to Loja.GOG,
+            37 to Loja.HUMBLE_STORE
+        )
+
+        lojas.forEach { (idLoja, lojaEsperada) ->
+            val jogo = MapeadorItad.jogo(base(), JSONObject(), precos(oferta(loja = idLoja)))
+            assertEquals(lojaEsperada, jogo.ofertas.single().loja)
+        }
+    }
+
+    @Test fun enviaLojasSelecionadasNaConsultaPaginada() = runBlocking {
+        var caminhoDaLista = ""
+        val repositorio = RepositorioItad({ caminho, _ ->
+            when {
+                caminho.startsWith("/deals/") -> {
+                    caminhoDaLista = caminho
+                    JSONObject().put("list", JSONArray().put(base().put("type", "game"))).toString()
+                }
+                caminho.startsWith("/games/prices/") -> JSONArray().put(precos(oferta(loja = 35))).toString()
+                else -> "{}"
+            }
+        }, "Ofertas", "Descontos", "Fonte")
+
+        repositorio.paginaDaFileira(
+            "Descontos",
+            ordenacao = Ordenacao.MENOR_PRECO,
+            lojas = setOf(Loja.GOG, Loja.HUMBLE_STORE)
+        )
+
+        assertTrue(caminhoDaLista.contains("&shops=35,37&"))
+    }
+
     @Test fun camposAusentesNaoViramValoresFicticios() {
         val jogo = MapeadorItad.jogo(base(), JSONObject(), null)
         assertTrue(jogo.nota.isNaN())

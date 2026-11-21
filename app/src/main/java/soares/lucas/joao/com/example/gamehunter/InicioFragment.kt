@@ -99,6 +99,9 @@ class InicioFragment : Fragment() {
         val intent = Intent(requireContext(), ResultadoPesquisaActivity::class.java)
         intent.putExtra(ResultadoPesquisaActivity.EXTRA_BUSCA, texto)
         intent.putExtra(ResultadoPesquisaActivity.EXTRA_GENEROS, filtros.generos.map { it.name }.toTypedArray())
+        intent.putExtra(ResultadoPesquisaActivity.EXTRA_ORDENACAO, filtros.ordenacao.name)
+        intent.putExtra(ResultadoPesquisaActivity.EXTRA_CONTEUDO, filtros.selecaoConteudo.name)
+        intent.putExtra(ResultadoPesquisaActivity.EXTRA_LOJAS, filtros.lojas.map { it.name }.toTypedArray())
         startActivity(intent)
     }
 
@@ -151,7 +154,7 @@ class InicioFragment : Fragment() {
             binding.txtNenhumJogo.visibility = View.VISIBLE
             try {
                 todasAsFileiras = Repositorios.jogos(requireContext()).fileiras(
-                    generos, filtros.ordenacao, filtros.selecaoConteudo
+                    generos, filtros.ordenacao, filtros.selecaoConteudo, filtros.lojas
                 )
                 atualizarFileiras()
             } catch (erro: Exception) {
@@ -172,6 +175,7 @@ class InicioFragment : Fragment() {
         intent.putExtra(ResultadoPesquisaActivity.EXTRA_GENEROS, filtros.generos.map { it.name }.toTypedArray())
         intent.putExtra(ResultadoPesquisaActivity.EXTRA_ORDENACAO, ordenacaoInicial.name)
         intent.putExtra(ResultadoPesquisaActivity.EXTRA_CONTEUDO, filtros.selecaoConteudo.name)
+        intent.putExtra(ResultadoPesquisaActivity.EXTRA_LOJAS, filtros.lojas.map { it.name }.toTypedArray())
         startActivity(intent)
     }
 

@@ -20,6 +20,7 @@ import soares.lucas.joao.com.example.gamehunter.modais.ModalFiltros
 import soares.lucas.joao.com.example.gamehunter.modais.ModalJogo
 import soares.lucas.joao.com.example.gamehunter.modelo.Filtros
 import soares.lucas.joao.com.example.gamehunter.modelo.Jogo
+import soares.lucas.joao.com.example.gamehunter.modelo.Loja
 import soares.lucas.joao.com.example.gamehunter.modelo.Ordenacao
 import soares.lucas.joao.com.example.gamehunter.modelo.Genero
 import soares.lucas.joao.com.example.gamehunter.modelo.SelecaoConteudo
@@ -39,6 +40,7 @@ class ResultadoPesquisaActivity : AppCompatActivity() {
         const val EXTRA_GENEROS = "extra_generos"
         const val EXTRA_ORDENACAO = "extra_ordenacao"
         const val EXTRA_CONTEUDO = "extra_conteudo"
+        const val EXTRA_LOJAS = "extra_lojas"
 
         private const val CHIP_TODAS = 0
         private const val CHIP_EM_PROMOCAO = 1
@@ -80,6 +82,8 @@ class ResultadoPesquisaActivity : AppCompatActivity() {
                 ?: SelecaoConteudo.JOGOS,
             generos = intent.getStringArrayExtra(EXTRA_GENEROS).orEmpty()
                 .mapNotNull { nome -> Genero.entries.find { it.name == nome } }.toSet(),
+            lojas = intent.getStringArrayExtra(EXTRA_LOJAS).orEmpty()
+                .mapNotNull { nome -> Loja.entries.find { it.name == nome } }.toSet(),
             ordenacao = intent.getStringExtra(EXTRA_ORDENACAO)
                 ?.let { nome -> Ordenacao.entries.find { it.name == nome } }
                 ?: Ordenacao.RELEVANCIA
@@ -247,6 +251,7 @@ class ResultadoPesquisaActivity : AppCompatActivity() {
                     filtrosEmUso.generos,
                     filtrosEmUso.ordenacao,
                     filtrosEmUso.selecaoConteudo,
+                    filtrosEmUso.lojas,
                     offsetDaPagina,
                     TAMANHO_PAGINA
                 )
