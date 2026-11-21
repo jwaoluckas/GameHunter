@@ -196,6 +196,7 @@
     <string name="config_alertas_promocao">Receber alertas de promoção</string>
     <string name="config_salvar">Salvar alterações</string>
     <string name="config_salvo">Alterações salvas!</string>
+    <string name="erro_atualizar_perfil">Não foi possível atualizar o perfil. Tente novamente.</string>
     <string name="alerta_canal_nome">Promoções dos favoritos</string>
     <string name="alerta_canal_descricao">Avisos quando um jogo favoritado entra em promoção.</string>
     <string name="alerta_promocao_titulo">%1$s entrou em promoção!</string>

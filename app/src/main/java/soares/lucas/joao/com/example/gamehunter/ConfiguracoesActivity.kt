@@ -139,25 +139,45 @@ class ConfiguracoesActivity : AppCompatActivity() {
             return
         }
 
+        val usuario = autenticacao.currentUser
+        if (usuario == null) {
+            Toast.makeText(this, R.string.erro_sessao_expirada, Toast.LENGTH_LONG).show()
+            return
+        }
+
+        val nome = binding.edtNome.text.toString().trim()
+        val email = binding.edtEmail.text.toString().trim()
+        val dataNascimento = binding.edtDataNascimento.text.toString()
+        binding.btnSalvar.isEnabled = false
+
+        banco.collection("usuarios")
+            .document(usuario.uid)
+            .set(
+                mapOf("nome" to nome),
+                SetOptions.merge()
+            )
+            .addOnSuccessListener {
+                salvarPreferenciasLocais(nome, email, dataNascimento)
+                val foto = fotoSelecionada
+                if (foto == null) concluirSalvamento() else enviarFotoPerfil(foto)
+            }
+            .addOnFailureListener {
+                binding.btnSalvar.isEnabled = true
+                Toast.makeText(this, R.string.erro_atualizar_perfil, Toast.LENGTH_LONG).show()
+            }
+    }
+
+    private fun salvarPreferenciasLocais(nome: String, email: String, dataNascimento: String) {
         preferencias.salvarPerfil(
-            nome = binding.edtNome.text.toString().trim(),
-            email = binding.edtEmail.text.toString().trim(),
-            dataNascimento = binding.edtDataNascimento.text.toString()
+            nome = nome,
+            email = email,
+            dataNascimento = dataNascimento
         )
         preferencias.salvarPreferencias(
             moedaPadrao = MOEDAS_PADRAO[grupoMoedaPadrao.selecionado()],
             alertasPromocao = binding.swAlertasPromocao.isChecked
         )
         AgendadorAlertasPromocao.sincronizar(this)
-
-        // TODO (Backend): sincronizar nome, e-mail, data e nova senha com a conta.
-        val foto = fotoSelecionada
-        if (foto != null) {
-            enviarFotoPerfil(foto)
-            return
-        }
-
-        concluirSalvamento()
     }
 
     // Envia a nova foto e associa seu caminho ao perfil no Firestore.
@@ -168,7 +188,6 @@ class ConfiguracoesActivity : AppCompatActivity() {
             return
         }
 
-        binding.btnSalvar.isEnabled = false
         val caminho = caminhoFotoPerfil(usuario.uid)
         val metadata = StorageMetadata.Builder()
             .setContentType(contentResolver.getType(foto) ?: "image/jpeg")
