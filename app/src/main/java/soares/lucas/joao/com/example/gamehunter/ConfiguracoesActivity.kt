@@ -10,11 +10,15 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthRecentLoginRequiredException
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
-import com.google.firebase.storage.FirebaseStorage
-import com.google.firebase.storage.StorageMetadata
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import soares.lucas.joao.com.example.gamehunter.componentes.GrupoDeChips
 import soares.lucas.joao.com.example.gamehunter.dados.PreferenciasUsuario
 import soares.lucas.joao.com.example.gamehunter.databinding.ActivityConfiguracoesBinding
@@ -23,7 +27,7 @@ import soares.lucas.joao.com.example.gamehunter.notificacoes.AgendadorAlertasPro
 
 // Tela de CONFIGURAÇÕES, aberta pelo menu de perfil. Permite alterar a foto, os
 // dados pessoais, a senha, a moeda padrão de comparação e os alertas de promoção.
-// Os dados ficam salvos com SharedPreferences (classe PreferenciasUsuario)
+// Dados da conta sincronizam com Firebase; foto e preferências do aparelho ficam locais.
 class ConfiguracoesActivity : AppCompatActivity() {
 
     // Moedas oferecidas como padrão nas Configurações, como no Figma
@@ -36,7 +40,6 @@ class ConfiguracoesActivity : AppCompatActivity() {
     private lateinit var grupoMoedaPadrao: GrupoDeChips
     private val autenticacao by lazy { FirebaseAuth.getInstance() }
     private val banco by lazy { FirebaseFirestore.getInstance() }
-    private val armazenamento by lazy { FirebaseStorage.getInstance() }
     private val solicitarPermissaoNotificacoes =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { concedida ->
             if (!concedida && ::binding.isInitialized) {
@@ -47,6 +50,7 @@ class ConfiguracoesActivity : AppCompatActivity() {
 
     // Foto de perfil escolhida (opcional, por isso pode ser null)
     private var fotoSelecionada: Uri? = null
+    private var emailAguardandoConfirmacao = false
 
     // Abre a galeria e, quando o usuário volta com uma imagem, guarda o endereço
     // dela e a exibe dentro do círculo
@@ -90,7 +94,9 @@ class ConfiguracoesActivity : AppCompatActivity() {
         binding.edtEmail.setText(preferencias.email)
         binding.edtDataNascimento.setText(preferencias.dataNascimento)
         binding.swAlertasPromocao.isChecked = preferencias.alertasPromocao
-        carregarFotoPerfil(binding.imgFotoPerfil, preferencias.fotoCaminho)
+        autenticacao.currentUser?.uid?.let { uid ->
+            carregarFotoPerfil(binding.imgFotoPerfil, preferencias.fotoCaminho(uid))
+        }
 
         val indiceMoeda = MOEDAS_PADRAO.indexOf(preferencias.moedaPadrao)
         grupoMoedaPadrao.selecionar(if (indiceMoeda >= 0) indiceMoeda else 0)
@@ -148,16 +154,63 @@ class ConfiguracoesActivity : AppCompatActivity() {
         val nome = binding.edtNome.text.toString().trim()
         val email = binding.edtEmail.text.toString().trim()
         val dataNascimento = binding.edtDataNascimento.text.toString()
+        val novaSenha = binding.edtNovaSenha.text.toString()
         binding.btnSalvar.isEnabled = false
 
+        atualizarSenhaSeNecessario(usuario, novaSenha) {
+            atualizarEmailSeNecessario(usuario, email) {
+                salvarPerfilRemoto(usuario, nome, dataNascimento)
+            }
+        }
+    }
+
+    // Senha pertence ao Firebase Authentication e so e alterada quando preenchida.
+    private fun atualizarSenhaSeNecessario(
+        usuario: FirebaseUser,
+        novaSenha: String,
+        aoConcluir: () -> Unit
+    ) {
+        if (novaSenha.isBlank()) return aoConcluir()
+        usuario.updatePassword(novaSenha)
+            .addOnSuccessListener { aoConcluir() }
+            .addOnFailureListener(::tratarFalhaCredencial)
+    }
+
+    // O Firebase envia uma verificacao ao novo endereco antes de efetivar a troca.
+    private fun atualizarEmailSeNecessario(
+        usuario: FirebaseUser,
+        novoEmail: String,
+        aoConcluir: () -> Unit
+    ) {
+        if (novoEmail.equals(usuario.email, ignoreCase = true)) return aoConcluir()
+        autenticacao.setLanguageCode("pt-BR")
+        usuario.verifyBeforeUpdateEmail(novoEmail)
+            .addOnSuccessListener {
+                emailAguardandoConfirmacao = true
+                aoConcluir()
+            }
+            .addOnFailureListener(::tratarFalhaCredencial)
+    }
+
+    // Nome, nascimento e o e-mail ja confirmado permanecem no documento do perfil.
+    private fun salvarPerfilRemoto(
+        usuario: FirebaseUser,
+        nome: String,
+        dataNascimento: String
+    ) {
+        val emailConfirmado = usuario.email.orEmpty().ifEmpty { preferencias.email }
         banco.collection("usuarios")
             .document(usuario.uid)
             .set(
-                mapOf("nome" to nome),
+                mapOf(
+                    "nome" to nome,
+                    "email" to emailConfirmado,
+                    "dataNascimento" to dataNascimento
+                ),
                 SetOptions.merge()
             )
             .addOnSuccessListener {
-                salvarPreferenciasLocais(nome, email, dataNascimento)
+                salvarPreferenciasLocais(nome, emailConfirmado, dataNascimento)
                 val foto = fotoSelecionada
                 if (foto == null) concluirSalvamento() else enviarFotoPerfil(foto)
             }
@@ -165,6 +218,16 @@ class ConfiguracoesActivity : AppCompatActivity() {
                 binding.btnSalvar.isEnabled = true
                 Toast.makeText(this, R.string.erro_atualizar_perfil, Toast.LENGTH_LONG).show()
             }
+    }
+
+    private fun tratarFalhaCredencial(erro: Exception) {
+        binding.btnSalvar.isEnabled = true
+        val mensagem = if (erro is FirebaseAuthRecentLoginRequiredException) {
+            R.string.erro_login_recente
+        } else {
+            R.string.erro_atualizar_credenciais
+        }
+        Toast.makeText(this, mensagem, Toast.LENGTH_LONG).show()
     }
 
     private fun salvarPreferenciasLocais(nome: String, email: String, dataNascimento: String) {
@@ -180,7 +243,7 @@ class ConfiguracoesActivity : AppCompatActivity() {
         AgendadorAlertasPromocao.sincronizar(this)
     }
 
-    // Envia a nova foto e associa seu caminho ao perfil no Firestore.
+    // Reduz e salva a nova foto somente na pasta privada deste dispositivo.
     private fun enviarFotoPerfil(foto: Uri) {
         val usuario = autenticacao.currentUser
         if (usuario == null) {
@@ -188,35 +251,32 @@ class ConfiguracoesActivity : AppCompatActivity() {
             return
         }
 
-        val caminho = caminhoFotoPerfil(usuario.uid)
-        val metadata = StorageMetadata.Builder()
-            .setContentType(contentResolver.getType(foto) ?: "image/jpeg")
-            .build()
-
-        armazenamento.reference.child(caminho)
-            .putFile(foto, metadata)
-            .addOnSuccessListener {
-                banco.collection("usuarios")
-                    .document(usuario.uid)
-                    .set(mapOf("fotoCaminho" to caminho), SetOptions.merge())
-                    .addOnSuccessListener {
-                        preferencias.salvarFotoPerfil(caminho)
-                        concluirSalvamento()
-                    }
-                    .addOnFailureListener {
-                        binding.btnSalvar.isEnabled = true
-                        Toast.makeText(this, R.string.erro_salvar_foto, Toast.LENGTH_LONG).show()
-                    }
+        lifecycleScope.launch {
+            val caminho = withContext(Dispatchers.IO) {
+                salvarFotoPerfilLocal(this@ConfiguracoesActivity, usuario.uid, foto)
             }
-            .addOnFailureListener {
+            if (caminho == null) {
                 binding.btnSalvar.isEnabled = true
-                Toast.makeText(this, R.string.erro_enviar_foto, Toast.LENGTH_LONG).show()
+                Toast.makeText(
+                    this@ConfiguracoesActivity,
+                    R.string.erro_enviar_foto,
+                    Toast.LENGTH_LONG
+                ).show()
+            } else {
+                preferencias.salvarFotoPerfil(usuario.uid, caminho)
+                concluirSalvamento()
             }
+        }
     }
 
     // Confirma as alterações mantendo o comportamento original da tela.
     private fun concluirSalvamento() {
-        Toast.makeText(this, R.string.config_salvo, Toast.LENGTH_SHORT).show()
+        val mensagem = if (emailAguardandoConfirmacao) {
+            R.string.config_email_confirmacao
+        } else {
+            R.string.config_salvo
+        }
+        Toast.makeText(this, mensagem, Toast.LENGTH_LONG).show()
         finish()
     }
 }

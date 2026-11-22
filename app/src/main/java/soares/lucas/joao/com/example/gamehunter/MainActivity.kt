@@ -8,6 +8,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 import soares.lucas.joao.com.example.gamehunter.dados.PreferenciasUsuario
 import soares.lucas.joao.com.example.gamehunter.databinding.ActivityMainBinding
 
@@ -27,11 +28,14 @@ class MainActivity : AppCompatActivity() {
 
         val usuarioAtual = autenticacao.currentUser
         if (usuarioAtual != null) {
-            carregarPerfilEAbrirPrincipal(
-                uid = usuarioAtual.uid,
-                emailAutenticado = usuarioAtual.email.orEmpty(),
-                exibirBoasVindas = false
-            )
+            usuarioAtual.reload().addOnCompleteListener {
+                val usuarioRecarregado = autenticacao.currentUser ?: usuarioAtual
+                carregarPerfilEAbrirPrincipal(
+                    uid = usuarioRecarregado.uid,
+                    emailAutenticado = usuarioRecarregado.email.orEmpty(),
+                    exibirBoasVindas = false
+                )
+            }
             return
         }
 
@@ -107,16 +111,20 @@ class MainActivity : AppCompatActivity() {
             .addOnSuccessListener { documento ->
                 val preferencias = PreferenciasUsuario(this)
                 val nome = documento.getString("nome").orEmpty()
-                val email = documento.getString("email").orEmpty().ifEmpty { emailAutenticado }
+                val emailDoDocumento = documento.getString("email").orEmpty()
+                val email = emailAutenticado.ifEmpty { emailDoDocumento }
                 val dataNascimento = documento.getString("dataNascimento").orEmpty()
-                val fotoCaminho = documento.getString("fotoCaminho").orEmpty()
 
                 if (documento.exists()) {
                     preferencias.salvarPerfil(nome, email, dataNascimento)
-                    preferencias.salvarFotoPerfil(fotoCaminho)
+                    if (emailAutenticado.isNotBlank() && emailDoDocumento != emailAutenticado) {
+                        documento.reference.set(
+                            mapOf("email" to emailAutenticado),
+                            SetOptions.merge()
+                        )
+                    }
                 } else {
                     preferencias.salvarEmail(email)
-                    preferencias.salvarFotoPerfil("")
                 }
 
                 abrirTelaPrincipal(email, exibirBoasVindas)

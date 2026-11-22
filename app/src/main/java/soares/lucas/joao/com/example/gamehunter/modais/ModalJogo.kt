@@ -55,8 +55,8 @@ class ModalJogo(
         precoMoedaAdapter.atualizarPrecos(it)
     }
 
-    // Favoritos do usuário logado (Firestore) e se ESTE jogo está entre eles
-    private val favoritos = RepositorioFavoritos()
+    // Favoritos locais do usuário logado e se ESTE jogo está entre eles
+    private val favoritos = RepositorioFavoritos(contexto)
     private var favorito = false
 
     private fun tentarNovamente(moeda: Moeda) {
@@ -113,9 +113,9 @@ class ModalJogo(
         binding.txtResumo.text = jogo.resumo.ifBlank { contexto.getString(R.string.itad_sem_sinopse) }
     }
 
-    // Estrela de FAVORITAR na capa. Começa vazia e desabilitada enquanto o Firestore
-    // responde se o jogo já é favorito; ao receber a resposta, mostra o estado salvo.
-    // Se a leitura falhar (ex.: sem internet), avisa com um Toast e libera o botão
+    // Estrela de FAVORITAR na capa. Começa vazia e desabilitada enquanto o armazenamento
+    // local responde se o jogo já é favorito; ao receber a resposta, mostra o estado salvo.
+    // Se a leitura falhar, avisa com um Toast e libera o botão
     // mesmo assim, para o usuário poder favoritar
     private fun configurarFavorito() {
         mostrarEstrela(false)
@@ -138,7 +138,7 @@ class ModalJogo(
     }
 
     // Toque na estrela: a tela muda NA HORA (preenchida = salvo, vazia = removido) e o
-    // Firestore é atualizado em seguida. Se a gravação falhar, a estrela volta ao
+    // armazenamento local é atualizado em seguida. Se a gravação falhar, a estrela volta ao
     // estado anterior e um Toast avisa o usuário. O "if" evita desfazer um toque mais
     // recente caso o usuário tenha tocado de novo antes da falha chegar
     private fun alternarFavorito() {

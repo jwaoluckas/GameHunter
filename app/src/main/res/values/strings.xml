@@ -63,7 +63,7 @@
     <string name="erro_salvar_perfil">Não foi possível salvar o perfil. Tente criar a conta novamente.</string>
     <string name="erro_enviar_foto">Não foi possível enviar a foto. Escolha outra imagem ou tente novamente.</string>
     <string name="erro_salvar_foto">A foto foi enviada, mas não foi possível atualizar o perfil.</string>
-    <string name="erro_sessao_expirada">Sua sessão expirou. Entre novamente para alterar a foto.</string>
+    <string name="erro_sessao_expirada">Sua sessão expirou. Entre novamente para salvar as alterações.</string>
 
     <!-- Tela de Recuperar senha -->
     <string name="recuperar_titulo">Recuperar senha</string>
@@ -161,12 +161,12 @@
     <string name="erro_abrir_link">Nenhum navegador encontrado para abrir a loja.</string>
 
     <!-- Favoritos: estrela do modal do jogo (descrições lidas pelo leitor de tela dizem
-         o que o toque vai fazer), tela Favoritos e mensagens de erro do Firestore -->
+         o que o toque vai fazer), tela Favoritos e mensagens do armazenamento local -->
     <string name="desc_adicionar_favorito">Adicionar aos favoritos</string>
     <string name="desc_remover_favorito">Remover dos favoritos</string>
     <string name="favoritos_subtitulo">Os jogos que você favoritar na ★ do modal aparecem aqui.</string>
     <string name="favoritos_vazio">Você ainda não favoritou nenhum jogo.\nToque na ★ de um jogo para guardá-lo aqui.</string>
-    <string name="erro_favoritos_carregar">Não foi possível carregar os favoritos. Verifique a internet.</string>
+    <string name="erro_favoritos_carregar">Não foi possível carregar os favoritos salvos neste dispositivo.</string>
     <string name="erro_favoritos_salvar">Não foi possível atualizar os favoritos. Tente novamente.</string>
 
     <!-- Modal de comparar moedas -->
@@ -196,7 +196,10 @@
     <string name="config_alertas_promocao">Receber alertas de promoção</string>
     <string name="config_salvar">Salvar alterações</string>
     <string name="config_salvo">Alterações salvas!</string>
+    <string name="config_email_confirmacao">Alterações salvas. Confirme o novo endereço pelo e-mail enviado pelo Firebase.</string>
     <string name="erro_atualizar_perfil">Não foi possível atualizar o perfil. Tente novamente.</string>
+    <string name="erro_atualizar_credenciais">Não foi possível atualizar o e-mail ou a senha. Verifique os dados e tente novamente.</string>
+    <string name="erro_login_recente">Por segurança, saia, entre novamente e repita a alteração de e-mail ou senha.</string>
     <string name="alerta_canal_nome">Promoções dos favoritos</string>
     <string name="alerta_canal_descricao">Avisos quando um jogo favoritado entra em promoção.</string>
     <string name="alerta_promocao_titulo">%1$s entrou em promoção!</string>

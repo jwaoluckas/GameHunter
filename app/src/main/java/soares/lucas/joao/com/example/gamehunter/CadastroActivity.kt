@@ -6,11 +6,13 @@ import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.storage.FirebaseStorage
-import com.google.firebase.storage.StorageMetadata
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import soares.lucas.joao.com.example.gamehunter.dados.PreferenciasUsuario
 import soares.lucas.joao.com.example.gamehunter.databinding.ActivityCadastroBinding
 
@@ -20,7 +22,6 @@ class CadastroActivity : AppCompatActivity() {
     private lateinit var binding: ActivityCadastroBinding
     private val autenticacao by lazy { FirebaseAuth.getInstance() }
     private val banco by lazy { FirebaseFirestore.getInstance() }
-    private val armazenamento by lazy { FirebaseStorage.getInstance() }
 
     // Foto de perfil escolhida (opcional, por isso pode ser null)
     private var fotoSelecionada: Uri? = null
@@ -107,14 +108,13 @@ class CadastroActivity : AppCompatActivity() {
                 if (foto == null) {
                     salvarPerfilNoFirestore(usuario, perfil, nome, email, dataNascimento, "")
                 } else {
-                    val caminho = caminhoFotoPerfil(usuario.uid)
-                    val metadata = StorageMetadata.Builder()
-                        .setContentType(contentResolver.getType(foto) ?: "image/jpeg")
-                        .build()
-                    armazenamento.reference.child(caminho)
-                        .putFile(foto, metadata)
-                        .addOnSuccessListener {
-                            perfil["fotoCaminho"] = caminho
+                    lifecycleScope.launch {
+                        val caminho = withContext(Dispatchers.IO) {
+                            salvarFotoPerfilLocal(this@CadastroActivity, usuario.uid, foto)
+                        }
+                        if (caminho == null) {
+                            cancelarCadastro(usuario, "", R.string.erro_enviar_foto)
+                        } else {
                             salvarPerfilNoFirestore(
                                 usuario,
                                 perfil,
@@ -124,9 +124,7 @@ class CadastroActivity : AppCompatActivity() {
                                 caminho
                             )
                         }
-                        .addOnFailureListener {
-                            cancelarCadastro(usuario, "", R.string.erro_enviar_foto)
-                        }
+                    }
                 }
             }
             .addOnFailureListener {
@@ -150,7 +148,7 @@ class CadastroActivity : AppCompatActivity() {
             .addOnSuccessListener {
                 PreferenciasUsuario(this).apply {
                     salvarPerfil(nome, email, dataNascimento)
-                    salvarFotoPerfil(caminhoFoto)
+                    salvarFotoPerfil(usuario.uid, caminhoFoto)
                 }
                 autenticacao.signOut()
                 Toast.makeText(this, R.string.cadastro_sucesso, Toast.LENGTH_SHORT).show()
@@ -163,20 +161,11 @@ class CadastroActivity : AppCompatActivity() {
 
     // Remove dados parciais quando não é possível concluir o cadastro.
     private fun cancelarCadastro(usuario: FirebaseUser, caminhoFoto: String, mensagem: Int) {
-        val removerUsuario = {
-            usuario.delete().addOnCompleteListener {
-                autenticacao.signOut()
-                binding.btnCriarConta.isEnabled = true
-                Toast.makeText(this, mensagem, Toast.LENGTH_LONG).show()
-            }
-        }
-
-        if (caminhoFoto.isEmpty()) {
-            removerUsuario()
-        } else {
-            armazenamento.reference.child(caminhoFoto).delete().addOnCompleteListener {
-                removerUsuario()
-            }
+        removerFotoPerfilLocal(caminhoFoto)
+        usuario.delete().addOnCompleteListener {
+            autenticacao.signOut()
+            binding.btnCriarConta.isEnabled = true
+            Toast.makeText(this, mensagem, Toast.LENGTH_LONG).show()
         }
     }
 }

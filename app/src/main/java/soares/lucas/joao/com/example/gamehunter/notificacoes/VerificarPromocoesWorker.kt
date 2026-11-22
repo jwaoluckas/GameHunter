@@ -27,7 +27,7 @@ class VerificarPromocoesWorker(
         val usuario = FirebaseAuth.getInstance().currentUser ?: return Result.success()
 
         val favoritos = try {
-            RepositorioFavoritos().listarParaAlertas().filter { it.idItad != null }
+            RepositorioFavoritos(applicationContext).listarParaAlertas().filter { it.idItad != null }
         } catch (erro: CancellationException) {
             throw erro
         } catch (_: Exception) {

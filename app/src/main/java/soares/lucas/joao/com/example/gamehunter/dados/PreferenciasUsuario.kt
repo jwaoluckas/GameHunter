@@ -8,11 +8,8 @@ import soares.lucas.joao.com.example.gamehunter.modelo.Moeda
 // que continuam salvos mesmo depois de fechar o app). São dois tipos de dado:
 // - PREFERÊNCIAS DE TELA (moeda padrão, alertas de promoção e moedas escolhidas no
 //   modal "Comparar moedas"): ficam no aparelho mesmo
-// - PERFIL (nome, e-mail e data de nascimento): é PROVISÓRIO, só para o menu de perfil
-//   e as Configurações funcionarem sem o servidor.
-// TODO (Backend): o perfil deve vir da conta do usuário no servidor (RNF03); quando
-//  existir, Login, Cadastro e Configurações passam a usar o Backend e as funções
-//  salvarEmail/salvarPerfil (e as leituras de nome, email e dataNascimento) saem daqui
+// - PERFIL (nome, e-mail e data): cópia local dos dados sincronizados com o Firebase,
+//   usada para preencher rapidamente o menu e a tela de Configurações.
 class PreferenciasUsuario(contexto: Context) {
 
     // Nome do arquivo, chaves e valores padrão das preferências
@@ -44,8 +41,9 @@ class PreferenciasUsuario(contexto: Context) {
     val dataNascimento: String
         get() = preferences.getString(CHAVE_DATA_NASCIMENTO, "").orEmpty()
 
-    val fotoCaminho: String
-        get() = preferences.getString(CHAVE_FOTO_CAMINHO, "").orEmpty()
+    // Cada conta usa uma chave propria para nao misturar fotos no mesmo aparelho.
+    fun fotoCaminho(uid: String): String =
+        preferences.getString("${CHAVE_FOTO_CAMINHO}_$uid", "").orEmpty()
 
     val alertasPromocao: Boolean
         get() = preferences.getBoolean(CHAVE_ALERTAS_PROMOCAO, true)
@@ -77,9 +75,9 @@ class PreferenciasUsuario(contexto: Context) {
         }
     }
 
-    // Mantém localmente o caminho da foto privada salva no Firebase Storage.
-    fun salvarFotoPerfil(caminho: String) {
-        preferences.edit { putString(CHAVE_FOTO_CAMINHO, caminho) }
+    // Mantém o caminho do arquivo privado salvo no armazenamento interno do app.
+    fun salvarFotoPerfil(uid: String, caminho: String) {
+        preferences.edit { putString("${CHAVE_FOTO_CAMINHO}_$uid", caminho) }
     }
 
     fun salvarPreferencias(moedaPadrao: Moeda, alertasPromocao: Boolean) {

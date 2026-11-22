@@ -66,7 +66,9 @@ class PrincipalActivity : AppCompatActivity() {
         menuBinding.txtNomeUsuario.text = preferencias.nome.ifEmpty { getString(R.string.usuario_padrao) }
         menuBinding.txtEmailUsuario.text = preferencias.email
         menuBinding.imgFotoUsuario.clipToOutline = true
-        carregarFotoPerfil(menuBinding.imgFotoUsuario, preferencias.fotoCaminho)
+        FirebaseAuth.getInstance().currentUser?.uid?.let { uid ->
+            carregarFotoPerfil(menuBinding.imgFotoUsuario, preferencias.fotoCaminho(uid))
+        }
 
         val dialogo = AlertDialog.Builder(this)
             .setView(menuBinding.root)

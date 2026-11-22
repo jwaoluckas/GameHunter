@@ -1,194 +1,203 @@
 package soares.lucas.joao.com.example.gamehunter.dados
 
-import android.app.Activity
+import android.content.Context
+import android.content.SharedPreferences
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.CollectionReference
-import com.google.firebase.firestore.DocumentSnapshot
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ListenerRegistration
-import com.google.firebase.firestore.Query
-import kotlinx.coroutines.suspendCancellableCoroutine
+import org.json.JSONArray
+import org.json.JSONObject
 import soares.lucas.joao.com.example.gamehunter.modelo.Jogo
 import soares.lucas.joao.com.example.gamehunter.modelo.Loja
 import soares.lucas.joao.com.example.gamehunter.modelo.Oferta
 import soares.lucas.joao.com.example.gamehunter.modelo.Plataforma
 import soares.lucas.joao.com.example.gamehunter.modelo.TipoConteudo
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
+import java.io.IOException
 
-// FAVORITOS do usuário logado, salvos no Cloud Firestore (o mesmo banco usado pelo
-// perfil). Cada usuário tem a sua subcoleção, ligada ao UID do Firebase Authentication:
-//
-//   usuarios/{uid}/favoritos/{idDoJogo}
-//
-// O id do documento é o id da IsThereAnyDeal (idItad), que identifica o jogo de forma
-// estável; jogos sem idItad (dados de exemplo) usam o id numérico.
-// Como o catálogo não tem uma busca "por id", o documento guarda um retrato do jogo
-// com tudo o que o card e o modal exibem (título, capa, nota, preços, plataformas,
-// ofertas...). Os preços ficam como estavam no momento em que o jogo foi favoritado.
-//
-// As funções usam callbacks (aoTerminar / aoFalhar), no mesmo padrão de
-// addOnSuccessListener/addOnFailureListener já usado no Login, Cadastro e Configurações.
-// Se não houver usuário logado, a operação falha direto pelo aoFalhar.
-class RepositorioFavoritos {
+// Favoritos privados deste dispositivo. Cada UID do Firebase possui uma lista separada,
+// mas os jogos nao sao enviados ao Firestore e funcionam mesmo sem internet.
+class RepositorioFavoritos(contexto: Context) {
 
-    // Nomes da coleção/subcoleção e do campo usado para ordenar a lista
     companion object {
-        private const val COLECAO_USUARIOS = "usuarios"
-        private const val COLECAO_FAVORITOS = "favoritos"
+        private const val NOME_PREFERENCIAS = "favoritos_gamehunter"
+        private const val PREFIXO_CHAVE = "favoritos_"
         private const val CAMPO_ADICIONADO_EM = "adicionadoEm"
+        private val bloqueio = Any()
     }
 
     private val autenticacao = FirebaseAuth.getInstance()
-    private val banco = FirebaseFirestore.getInstance()
+    private val preferencias = contexto.applicationContext.getSharedPreferences(
+        NOME_PREFERENCIAS,
+        Context.MODE_PRIVATE
+    )
 
-    // Subcoleção de favoritos do usuário logado (null quando ninguém está logado)
-    private fun colecaoDoUsuario(): CollectionReference? {
-        val uid = autenticacao.currentUser?.uid ?: return null
-        return banco.collection(COLECAO_USUARIOS).document(uid).collection(COLECAO_FAVORITOS)
-    }
+    private fun uidAtual(): String? = autenticacao.currentUser?.uid
 
-    private fun idDoDocumento(jogo: Jogo): String = jogo.idItad ?: jogo.id.toString()
+    private fun chave(uid: String): String = "$PREFIXO_CHAVE$uid"
 
-    // ===== OPERAÇÕES =====
-    // verificar: lê o documento do jogo para saber se ele já é favorito (usado ao abrir o modal)
-    // adicionar: grava (ou regrava) o retrato do jogo
-    // remover: apaga o documento do jogo
-    // Sem internet, o Firestore guarda as gravações e as envia quando a conexão voltar;
-    // o aoFalhar é chamado quando a operação é recusada (ex.: sessão ou regras de segurança)
-    // e, na leitura, quando não há conexão nem cópia local.
+    private fun idDoJogo(jogo: Jogo): String = jogo.idItad ?: jogo.id.toString()
 
     fun verificar(jogo: Jogo, aoTerminar: (Boolean) -> Unit, aoFalhar: () -> Unit) {
-        val colecao = colecaoDoUsuario() ?: return aoFalhar()
-        colecao.document(idDoDocumento(jogo)).get()
-            .addOnSuccessListener { documento -> aoTerminar(documento.exists()) }
-            .addOnFailureListener { aoFalhar() }
+        val uid = uidAtual() ?: return aoFalhar()
+        runCatching {
+            listar(uid).any { idDoJogo(it) == idDoJogo(jogo) }
+        }.onSuccess(aoTerminar).onFailure { aoFalhar() }
     }
 
     fun adicionar(jogo: Jogo, aoFalhar: () -> Unit) {
-        val colecao = colecaoDoUsuario() ?: return aoFalhar()
-        colecao.document(idDoDocumento(jogo)).set(paraDocumento(jogo))
-            .addOnFailureListener { aoFalhar() }
+        val uid = uidAtual() ?: return aoFalhar()
+        runCatching {
+            synchronized(bloqueio) {
+                val atuais = listarComData(uid).filterNot { idDoJogo(it.first) == idDoJogo(jogo) }
+                salvar(uid, listOf(jogo to System.currentTimeMillis()) + atuais)
+            }
+        }.onFailure { aoFalhar() }
     }
 
     fun remover(jogo: Jogo, aoFalhar: () -> Unit) {
-        val colecao = colecaoDoUsuario() ?: return aoFalhar()
-        colecao.document(idDoDocumento(jogo)).delete()
-            .addOnFailureListener { aoFalhar() }
+        val uid = uidAtual() ?: return aoFalhar()
+        runCatching {
+            synchronized(bloqueio) {
+                val atuais = listarComData(uid).filterNot { idDoJogo(it.first) == idDoJogo(jogo) }
+                salvar(uid, atuais)
+            }
+        }.onFailure { aoFalhar() }
     }
 
-    // Observa a lista de favoritos em TEMPO REAL, do mais recente para o mais antigo:
-    // aoReceber é chamado com a lista atual e de novo a cada mudança (ex.: o usuário
-    // desfavoritou pelo modal). Passar a Activity faz o Firestore remover o "ouvinte"
-    // sozinho no onStop dela, por isso a tela deve chamar esta função no onStart.
-    // Retorna null (sem chamar nada) quando não há usuário logado
+    // Emite a lista atual e continua observando alteracoes feitas neste processo.
     fun observar(
-        activity: Activity,
         aoReceber: (List<Jogo>) -> Unit,
         aoFalhar: () -> Unit
-    ): ListenerRegistration? {
-        val colecao = colecaoDoUsuario() ?: return null
-        return colecao.orderBy(CAMPO_ADICIONADO_EM, Query.Direction.DESCENDING)
-            .addSnapshotListener(activity) { resultado, erro ->
-                if (erro != null || resultado == null) {
-                    aoFalhar()
-                } else {
-                    aoReceber(resultado.documents.mapNotNull { paraJogo(it) })
-                }
-            }
-    }
+    ): AutoCloseable? {
+        val uid = uidAtual() ?: return null
+        val chaveUsuario = chave(uid)
 
-    internal suspend fun listarParaAlertas(): List<Jogo> {
-        val colecao = colecaoDoUsuario() ?: return emptyList()
-        return suspendCancellableCoroutine { continuacao ->
-            colecao.get()
-                .addOnSuccessListener { resultado ->
-                    if (continuacao.isActive) {
-                        continuacao.resume(resultado.documents.mapNotNull { paraJogo(it) })
-                    }
-                }
-                .addOnFailureListener { erro ->
-                    if (continuacao.isActive) continuacao.resumeWithException(erro)
-                }
+        fun emitir() {
+            runCatching { listar(uid) }
+                .onSuccess(aoReceber)
+                .onFailure { aoFalhar() }
+        }
+
+        val ouvinte = SharedPreferences.OnSharedPreferenceChangeListener { _, chaveAlterada ->
+            if (chaveAlterada == chaveUsuario) emitir()
+        }
+        preferencias.registerOnSharedPreferenceChangeListener(ouvinte)
+        emitir()
+
+        return AutoCloseable {
+            preferencias.unregisterOnSharedPreferenceChangeListener(ouvinte)
         }
     }
 
-    // ===== CONVERSÃO Jogo <-> documento do Firestore =====
-    // Enums (plataformas e lojas) são salvos pelo nome; números ausentes (NaN, que
-    // aparecem como travessão na tela) são salvos como null e voltam como NaN.
-    // A data em que o jogo foi favoritado serve para ordenar a lista
+    internal suspend fun listarParaAlertas(): List<Jogo> {
+        val uid = uidAtual() ?: return emptyList()
+        return listar(uid)
+    }
 
-    private fun paraDocumento(jogo: Jogo): Map<String, Any?> = mapOf(
-        "id" to jogo.id,
-        "idItad" to jogo.idItad,
-        "tipoConteudo" to jogo.tipoConteudo.name,
-        "titulo" to jogo.titulo,
-        "capaUrl" to jogo.capaUrl,
-        "nota" to numeroOuNulo(jogo.nota),
-        "precoLancamento" to numeroOuNulo(jogo.precoLancamento),
-        "plataformas" to jogo.plataformas.map { it.name },
-        "genero" to jogo.genero,
-        "desenvolvedora" to jogo.desenvolvedora,
-        "anoLancamento" to jogo.anoLancamento,
-        "resumo" to jogo.resumo,
-        "precoEmDolar" to numeroOuNulo(jogo.precoEmDolar),
-        "ofertas" to jogo.ofertas.map { oferta ->
-            mapOf(
-                "loja" to oferta.loja?.name,
-                "nomeLoja" to oferta.nomeLoja,
-                "plataforma" to oferta.plataforma,
-                "preco" to numeroOuNulo(oferta.preco),
-                "precoRegular" to numeroOuNulo(oferta.precoRegular),
-                "url" to oferta.url
-            )
-        },
-        "tags" to jogo.tags.toList(),
-        CAMPO_ADICIONADO_EM to System.currentTimeMillis()
-    )
+    private fun listar(uid: String): List<Jogo> = listarComData(uid).map { it.first }
 
-    // Documentos sem título são ignorados (retorna null) para não quebrar a lista
-    private fun paraJogo(documento: DocumentSnapshot): Jogo? {
-        val titulo = documento.getString("titulo") ?: return null
+    private fun listarComData(uid: String): List<Pair<Jogo, Long>> {
+        val texto = preferencias.getString(chave(uid), null) ?: return emptyList()
+        val array = JSONArray(texto)
+        return (0 until array.length()).mapNotNull { indice ->
+            runCatching {
+                val item = array.getJSONObject(indice)
+                paraJogo(item.getJSONObject("jogo")) to item.optLong(CAMPO_ADICIONADO_EM)
+            }.getOrNull()
+        }.sortedByDescending { it.second }
+    }
 
-        val ofertas = (documento.get("ofertas") as? List<*>).orEmpty()
-            .filterIsInstance<Map<*, *>>()
-            .map { mapa ->
-                val loja = Loja.entries.find { it.name == mapa["loja"] }
+    private fun salvar(uid: String, favoritos: List<Pair<Jogo, Long>>) {
+        val array = JSONArray()
+        favoritos.forEach { (jogo, adicionadoEm) ->
+            array.put(JSONObject().apply {
+                put(CAMPO_ADICIONADO_EM, adicionadoEm)
+                put("jogo", paraJson(jogo))
+            })
+        }
+        if (!preferencias.edit().putString(chave(uid), array.toString()).commit()) {
+            throw IOException("Nao foi possivel salvar os favoritos locais")
+        }
+    }
+
+    private fun paraJson(jogo: Jogo): JSONObject = JSONObject().apply {
+        put("id", jogo.id)
+        put("idItad", jogo.idItad ?: JSONObject.NULL)
+        put("tipoConteudo", jogo.tipoConteudo.name)
+        put("titulo", jogo.titulo)
+        put("capaUrl", jogo.capaUrl ?: JSONObject.NULL)
+        put("nota", numeroOuNulo(jogo.nota))
+        put("precoLancamento", numeroOuNulo(jogo.precoLancamento))
+        put("plataformas", JSONArray(jogo.plataformas.map { it.name }))
+        put("genero", jogo.genero)
+        put("desenvolvedora", jogo.desenvolvedora)
+        put("anoLancamento", jogo.anoLancamento)
+        put("resumo", jogo.resumo)
+        put("precoEmDolar", numeroOuNulo(jogo.precoEmDolar))
+        put("tags", JSONArray(jogo.tags.toList()))
+        put("ofertas", JSONArray().apply {
+            jogo.ofertas.forEach { oferta ->
+                put(JSONObject().apply {
+                    put("loja", oferta.loja?.name ?: JSONObject.NULL)
+                    put("nomeLoja", oferta.nomeLoja)
+                    put("plataforma", oferta.plataforma)
+                    put("preco", numeroOuNulo(oferta.preco))
+                    put("precoRegular", numeroOuNulo(oferta.precoRegular))
+                    put("url", oferta.url ?: JSONObject.NULL)
+                })
+            }
+        })
+    }
+
+    private fun paraJogo(json: JSONObject): Jogo {
+        val ofertasJson = json.optJSONArray("ofertas") ?: JSONArray()
+        val ofertas = (0 until ofertasJson.length()).mapNotNull { indice ->
+            runCatching {
+                val item = ofertasJson.getJSONObject(indice)
+                val loja = item.textoOuNulo("loja")
+                    ?.let { nome -> Loja.entries.find { it.name == nome } }
                 Oferta(
                     loja = loja,
-                    preco = numeroOuNaN(mapa["preco"]),
-                    nomeLoja = mapa["nomeLoja"] as? String ?: loja?.nome.orEmpty(),
-                    plataforma = mapa["plataforma"] as? String ?: loja?.plataforma ?: "PC",
-                    url = mapa["url"] as? String,
-                    precoRegular = numeroOuNaN(mapa["precoRegular"])
+                    preco = item.numeroOuNaN("preco"),
+                    nomeLoja = item.optString("nomeLoja", loja?.nome.orEmpty()),
+                    plataforma = item.optString("plataforma", loja?.plataforma ?: "PC"),
+                    url = item.textoOuNulo("url"),
+                    precoRegular = item.numeroOuNaN("precoRegular")
                 )
-            }
+            }.getOrNull()
+        }
 
         return Jogo(
-            id = documento.getLong("id")?.toInt() ?: documento.id.hashCode(),
-            titulo = titulo,
-            capaUrl = documento.getString("capaUrl"),
-            nota = numeroOuNaN(documento.get("nota")),
-            precoLancamento = numeroOuNaN(documento.get("precoLancamento")),
-            plataformas = textos(documento.get("plataformas"))
+            id = json.optInt("id", json.optString("titulo").hashCode()),
+            titulo = json.getString("titulo"),
+            capaUrl = json.textoOuNulo("capaUrl"),
+            nota = json.numeroOuNaN("nota"),
+            precoLancamento = json.numeroOuNaN("precoLancamento"),
+            plataformas = json.textos("plataformas")
                 .mapNotNull { nome -> Plataforma.entries.find { it.name == nome } },
-            genero = documento.getString("genero").orEmpty(),
-            desenvolvedora = documento.getString("desenvolvedora").orEmpty(),
-            anoLancamento = documento.getLong("anoLancamento")?.toInt() ?: 0,
-            resumo = documento.getString("resumo").orEmpty(),
-            precoEmDolar = numeroOuNaN(documento.get("precoEmDolar")),
+            genero = json.optString("genero"),
+            desenvolvedora = json.optString("desenvolvedora"),
+            anoLancamento = json.optInt("anoLancamento"),
+            resumo = json.optString("resumo"),
+            precoEmDolar = json.numeroOuNaN("precoEmDolar"),
             ofertas = ofertas,
-            idItad = documento.getString("idItad"),
-            tags = textos(documento.get("tags")).toSet(),
-            tipoConteudo = documento.getString("tipoConteudo")
-                ?.let { nome -> TipoConteudo.entries.find { it.name == nome } }
+            idItad = json.textoOuNulo("idItad"),
+            tags = json.textos("tags").toSet(),
+            tipoConteudo = json.optString("tipoConteudo")
+                .let { nome -> TipoConteudo.entries.find { it.name == nome } }
                 ?: TipoConteudo.JOGO
         )
     }
 
-    private fun numeroOuNulo(valor: Double): Double? = valor.takeIf { it.isFinite() }
+    private fun numeroOuNulo(valor: Double): Any =
+        valor.takeIf { it.isFinite() } ?: JSONObject.NULL
 
-    private fun numeroOuNaN(valor: Any?): Double = (valor as? Number)?.toDouble() ?: Double.NaN
+    private fun JSONObject.numeroOuNaN(campo: String): Double =
+        if (isNull(campo)) Double.NaN else optDouble(campo, Double.NaN)
 
-    private fun textos(valor: Any?): List<String> = (valor as? List<*>).orEmpty().filterIsInstance<String>()
+    private fun JSONObject.textoOuNulo(campo: String): String? =
+        if (isNull(campo) || !has(campo)) null else optString(campo).takeIf { it.isNotBlank() }
+
+    private fun JSONObject.textos(campo: String): List<String> {
+        val array = optJSONArray(campo) ?: return emptyList()
+        return (0 until array.length()).mapNotNull { indice -> array.optString(indice).takeIf { it.isNotBlank() } }
+    }
 }
