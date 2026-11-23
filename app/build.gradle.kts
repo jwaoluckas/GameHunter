@@ -28,6 +28,11 @@ android {
         versionCode = 1
         versionName = "1.0"
         buildConfigField("String", "ITAD_API_KEY", chaveItadLiteral)
+        buildConfigField(
+            "String",
+            "WELCOME_EMAIL_URL",
+            "\"https://gamehunter-welcome-email.marcelo513-ma.workers.dev/\""
+        )
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

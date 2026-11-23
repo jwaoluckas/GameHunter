@@ -13,8 +13,11 @@ import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.json.JSONObject
 import soares.lucas.joao.com.example.gamehunter.dados.PreferenciasUsuario
 import soares.lucas.joao.com.example.gamehunter.databinding.ActivityCadastroBinding
+import java.net.HttpURLConnection
+import java.net.URL
 
 // Tela de CADASTRO de um novo usuário
 class CadastroActivity : AppCompatActivity() {
@@ -150,13 +153,71 @@ class CadastroActivity : AppCompatActivity() {
                     salvarPerfil(nome, email, dataNascimento)
                     salvarFotoPerfil(usuario.uid, caminhoFoto)
                 }
-                autenticacao.signOut()
-                Toast.makeText(this, R.string.cadastro_sucesso, Toast.LENGTH_SHORT).show()
-                finish()
+                enviarEmailBoasVindas(usuario, nome)
             }
             .addOnFailureListener {
                 cancelarCadastro(usuario, caminhoFoto, R.string.erro_salvar_perfil)
             }
+    }
+
+    // Usa temporariamente o token da conta recém-criada para o Worker validar o
+    // destinatário. O token não é salvo no dispositivo nem enviado ao Brevo.
+    private fun enviarEmailBoasVindas(usuario: FirebaseUser, nome: String) {
+        usuario.getIdToken(false)
+            .addOnSuccessListener { resultado ->
+                val token = resultado.token
+                autenticacao.signOut()
+
+                if (token.isNullOrBlank()) {
+                    concluirCadastro(emailEnviado = false)
+                    return@addOnSuccessListener
+                }
+
+                lifecycleScope.launch {
+                    val enviado = withContext(Dispatchers.IO) {
+                        solicitarEmailBoasVindas(token, nome)
+                    }
+                    concluirCadastro(emailEnviado = enviado)
+                }
+            }
+            .addOnFailureListener {
+                autenticacao.signOut()
+                concluirCadastro(emailEnviado = false)
+            }
+    }
+
+    // Chama somente o Worker protegido; a chave do Brevo permanece no Cloudflare.
+    private fun solicitarEmailBoasVindas(token: String, nome: String): Boolean = runCatching {
+        val conexao = URL(BuildConfig.WELCOME_EMAIL_URL).openConnection() as HttpURLConnection
+        try {
+            conexao.requestMethod = "POST"
+            conexao.connectTimeout = 10_000
+            conexao.readTimeout = 15_000
+            conexao.doOutput = true
+            conexao.setRequestProperty("Authorization", "Bearer $token")
+            conexao.setRequestProperty("Content-Type", "application/json; charset=UTF-8")
+
+            val corpo = JSONObject().put("nome", nome).toString()
+            conexao.outputStream.bufferedWriter(Charsets.UTF_8).use { escritor ->
+                escritor.write(corpo)
+            }
+
+            conexao.responseCode in 200..299
+        } finally {
+            conexao.disconnect()
+        }
+    }.getOrDefault(false)
+
+    // O cadastro permanece válido mesmo quando o serviço externo de e-mail falha.
+    private fun concluirCadastro(emailEnviado: Boolean) {
+        autenticacao.signOut()
+        val mensagem = if (emailEnviado) {
+            R.string.cadastro_sucesso
+        } else {
+            R.string.cadastro_sucesso_sem_email
+        }
+        Toast.makeText(this, mensagem, Toast.LENGTH_LONG).show()
+        finish()
     }
 
     // Remove dados parciais quando não é possível concluir o cadastro.
